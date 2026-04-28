@@ -5,7 +5,7 @@ import DashboardPanel from "./Panels/Dashboard/DashboardPanel";
 import GlowingButton from "../Components/General/GlowingButton";
 import WorkoutsPanel from "./Panels/Workout/WorkoutsPanel";
 import { SessionProvider } from "../Context/useSessions";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Home from "./Panels/Home/Home";
 import { WorkoutProvider } from "../Context/useWorkouts";
 import { useParams } from "react-router-dom";
@@ -28,6 +28,7 @@ function MainPanel({ panel }: Props) {
   const { user } = useAuth();
   const [activePanel, setActivePanel] = useState<ActivePanel>(panel);
   const { username } = useParams();
+  const navigate = useNavigate();
 
   const [activePanelElement, setActivePanelElement] = useState<JSX.Element>(
     <Home />,
@@ -191,7 +192,10 @@ function MainPanel({ panel }: Props) {
           {user && (
             <GlowingButton
               outline={false}
-              onClick={() => setActivePanel(Panel.WORKOUTS)}
+              onClick={() => {
+                setActivePanel(Panel.WORKOUTS);
+                navigate("/workouts");
+              }}
               additionalClasses="bg-none bg-[#CAFD00] font-black tracking-tighter text-xs !text-[#4A5E00] self-center mb-5 md:m-0 w-full!"
             >
               + LOG NEW WORKOUT
