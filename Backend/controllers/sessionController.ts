@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import type { Session } from "../types/Session.ts";
-import Sessions from "../models/sessionModel.ts";
-import Users from "../models/userModel.ts";
-import Workouts from "../models/workoutModel.ts";
+import Sessions from "../models/sessionModel.js";
+import Users from "../models/userModel.js";
+import Workouts from "../models/workoutModel.js";
 
 class SessionController {
   async getSessions(req: Request<{}, {}, any>, res: Response) {

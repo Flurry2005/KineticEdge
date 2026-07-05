@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import JWTModel from "../models/JWT.ts";
+import JWTModel from "../models/JWT.js";
 import { ObjectId } from "mongodb";
 import type { Session } from "../types/Session.ts";
 import type { User } from "../types/User.ts";
-import Sessions from "../models/sessionModel.ts";
-import Users from "../models/userModel.ts";
+import Sessions from "../models/sessionModel.js";
+import Users from "../models/userModel.js";
 
 class UserController {
   async login(req: Request<{}, {}, LoginBody>, res: Response) {

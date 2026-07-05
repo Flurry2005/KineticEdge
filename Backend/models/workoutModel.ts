@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { exerciceSchema } from "./exerciceModel.ts";
+import { exerciceSchema } from "./exerciceModel.js";
 
 const workoutsSchema = new mongoose.Schema({
   userId: {

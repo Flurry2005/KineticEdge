@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { app } from "./express.ts";
-import DatabaseConnection from "./services/Database.ts";
+import { app } from "./express.js";
+import DatabaseConnection from "./services/Database.js";
 
 DatabaseConnection.connect();
 

@@ -1,7 +1,7 @@
-import { router as userRouter } from "./userRoutes.ts";
-import { router as exerciceRouter } from "./exerciceRoutes.ts";
-import { router as workoutRouter } from "./workoutRoutes.ts";
-import { router as sessionRouter } from "./sessionRoutes.ts";
+import { router as userRouter } from "./userRoutes.js";
+import { router as exerciceRouter } from "./exerciceRoutes.js";
+import { router as workoutRouter } from "./workoutRoutes.js";
+import { router as sessionRouter } from "./sessionRoutes.js";
 import express from "express";
 
 export const mainRouter = express.Router();

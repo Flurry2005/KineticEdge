@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import { mainRouter } from "./routes/index.ts";
+import { mainRouter } from "./routes/index.js";
 import cookieParser from "cookie-parser";
 
 export const app = express();

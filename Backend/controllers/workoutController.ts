@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import type { Exercice } from "../types/Exercice.ts";
-import Users from "../models/userModel.ts";
-import Workouts from "../models/workoutModel.ts";
+import Users from "../models/userModel.js";
+import Workouts from "../models/workoutModel.js";
 
 class WorkoutController {
   async createWorkout(req: Request<{}, {}, WorkoutBody>, res: Response) {

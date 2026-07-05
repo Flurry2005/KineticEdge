@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongodb";
-import Users from "../models/userModel.ts";
-import Exercice from "../models/exerciceModel.ts";
+import Users from "../models/userModel.js";
+import Exercice from "../models/exerciceModel.js";
 
 class ExerciceController {
   async getExercices(req: Request<{}, {}, any>, res: Response) {

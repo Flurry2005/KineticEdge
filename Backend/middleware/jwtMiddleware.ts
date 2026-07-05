@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import JWTModel from "../models/JWT.ts";
+import JWTModel from "../models/JWT.js";
 
 const middleware: any = {};
 export { middleware as jwtMiddleware };

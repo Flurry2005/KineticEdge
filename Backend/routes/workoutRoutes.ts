@@ -1,6 +1,6 @@
 import express from "express";
-import workoutController from "../controllers/workoutController.ts";
-import { jwtMiddleware } from "../middleware/jwtMiddleware.ts";
+import workoutController from "../controllers/workoutController.js";
+import { jwtMiddleware } from "../middleware/jwtMiddleware.js";
 
 export const router = express.Router();
 
