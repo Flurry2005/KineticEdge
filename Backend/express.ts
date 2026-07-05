@@ -12,7 +12,13 @@ app.use(express.urlencoded({ extended: true }));
 
 app.set("trust proxy", 1);
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:8000"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:8000",
+  "https://api.kineticedge.liamjorgensen.dev/",
+  "http://localhost:8000",
+  "https://kineticedge.liamjorgensen.dev/",
+];
 
 app.use(
   cors({
