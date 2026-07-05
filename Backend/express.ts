@@ -15,8 +15,8 @@ app.set("trust proxy", 1);
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:8000",
-  "https://api.kineticedge.liamjorgensen.dev/",
-  "https://kineticedge.liamjorgensen.dev/",
+  "https://api.kineticedge.liamjorgensen.dev",
+  "https://kineticedge.liamjorgensen.dev",
 ];
 
 app.use(
