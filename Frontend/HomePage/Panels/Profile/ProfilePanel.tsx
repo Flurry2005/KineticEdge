@@ -41,7 +41,7 @@ function ProfilePanel() {
         const res = await fetch(
           import.meta.env.DEV
             ? "http://localhost:3000/profile/"
-            : "https://api.kineticedge.liamjorgensen.dev/" + username,
+            : "https://api.kineticedge.liamjorgensen.dev/profile/" + username,
           {
             cache: "no-store",
           },
