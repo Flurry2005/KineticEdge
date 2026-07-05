@@ -2,8 +2,8 @@ import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import JWTModel from "../models/JWT.ts";
 import { ObjectId } from "mongodb";
-import type { Session } from "../../Frontend/types/Session.ts";
-import type { User } from "../../Frontend/types/User.ts";
+import type { Session } from "../types/Session.ts";
+import type { User } from "../types/User.ts";
 import Sessions from "../models/sessionModel.ts";
 import Users from "../models/userModel.ts";
 

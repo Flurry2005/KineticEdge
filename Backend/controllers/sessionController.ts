@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import type { Session } from "../../Frontend/types/Session.ts";
+import type { Session } from "../types/Session.ts";
 import Sessions from "../models/sessionModel.ts";
 import Users from "../models/userModel.ts";
 import Workouts from "../models/workoutModel.ts";

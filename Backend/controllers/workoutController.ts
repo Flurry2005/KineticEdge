@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import type { Exercice } from "../../Frontend/types/Exercice.ts";
+import type { Exercice } from "../types/Exercice.ts";
 import Users from "../models/userModel.ts";
 import Workouts from "../models/workoutModel.ts";
 
