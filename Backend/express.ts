@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { mainRouter } from "./routes/index.js";
 import cookieParser from "cookie-parser";
+import session from "express-session";
 
 export const app = express();
 app.use(express.json());
@@ -31,6 +32,19 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
     credentials: true,
+  }),
+);
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev_secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true, // Render = HTTPS so OK
+      httpOnly: true,
+      sameSite: "lax",
+    },
   }),
 );
 
