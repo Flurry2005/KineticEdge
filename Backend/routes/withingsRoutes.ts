@@ -115,7 +115,7 @@ router.get(
       // 6. Redirect back to frontend
       // -----------------------------
       return res.redirect(
-        `${process.env.FRONTEND_URL}/settings?withings=connected`,
+        `${process.env.FRONTEND_URL || "http://localhost:5173"}/settings?withings=connected`,
       );
     } catch (err) {
       console.error("OAuth callback error:", err);
