@@ -20,7 +20,17 @@ class UserController {
       const userObj = user.toObject();
       //@ts-ignore
       delete userObj.passwordHash;
-      const token = JWTModel.createJwtToken(user._id, user.username, email);
+      delete userObj.withings?.accessToken;
+      delete userObj.withings?.refreshToken;
+      delete userObj.withings?.expiresAt;
+      delete userObj.withings?.withingsUserId;
+
+      const token = JWTModel.createJwtToken(
+        user._id,
+        user.username,
+        email,
+        user.withings ? user.withings.connected : false,
+      );
       const expiry = new Date(Date.now() + 1000 * 60 * 60);
       res.cookie("token", token, {
         httpOnly: true,
@@ -28,6 +38,7 @@ class UserController {
         path: "/",
         expires: expiry,
       });
+      console.log(userObj);
       return res.status(200).json({ success: true, data: userObj });
     } else {
       return res

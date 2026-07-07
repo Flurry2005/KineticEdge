@@ -12,8 +12,6 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
-  },
   "devDependencies": {
     "concurrently": "^9.2.1"
   }

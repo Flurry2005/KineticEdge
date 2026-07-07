@@ -5,14 +5,21 @@ interface JWTPayload {
   userId: ObjectId;
   username: string;
   email: string;
+  withings: [withingsConnected: Boolean];
 }
 
 const JWTModel = {
-  createJwtToken(userId: ObjectId, username: string, email: string): string {
+  createJwtToken(
+    userId: ObjectId,
+    username: string,
+    email: string,
+    withingsConnected: boolean,
+  ): string {
     const payload: JWTPayload = {
       userId,
       username,
       email,
+      withings: [withingsConnected],
     };
 
     const options: any = {

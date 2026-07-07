@@ -5,6 +5,7 @@ export type User = {
   fullname: string;
   username: string;
   email: string;
+  withings: { connected: Boolean };
   createdAt: Date;
   profilePicture?: string;
   bio?: string;

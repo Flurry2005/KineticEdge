@@ -29,6 +29,14 @@ const router = createBrowserRouter([
         path: "/login",
         element: <LoginPage />,
       },
+      {
+        path: "/settings",
+        element: <MainPanel panel={Panel.SETTINGS} />,
+      },
+      {
+        path: "/measurements",
+        element: <MainPanel panel={Panel.MEASUREMENTS} />,
+      },
     ],
   },
 ]);

@@ -1,6 +1,7 @@
 import express from "express";
 import userModel from "../models/userModel.js";
 import { jwtMiddleware } from "../middleware/jwtMiddleware.js";
+import { refreshTokenWithingsMiddleware } from "../middleware/refreshTokenWithingsMiddleware.js";
 
 export const router = express.Router();
 router.get(
@@ -27,6 +28,27 @@ router.get(
     const url = `https://account.withings.com/oauth2_user/authorize2?${params.toString()}`;
 
     res.redirect(url);
+  },
+);
+
+router.patch(
+  "/api/auth/withings/disconnect",
+  jwtMiddleware.jwtTokenIsValid,
+  async (req, res) => {
+    const userId = res.locals.jwt.userId;
+
+    await userModel.findByIdAndUpdate(
+      { _id: userId },
+      {
+        $set: {
+          withings: {
+            connected: false,
+          },
+        },
+      },
+    );
+
+    return res.status(200).send();
   },
 );
 
@@ -121,5 +143,32 @@ router.get(
       console.error("OAuth callback error:", err);
       return res.status(500).send("OAuth failed");
     }
+  },
+);
+
+router.get(
+  "/api/withings/measurements",
+  jwtMiddleware.jwtTokenIsValid,
+  refreshTokenWithingsMiddleware.checkToken,
+  async (req, res) => {
+    const user = await userModel.findById({ _id: res.locals.jwt.userId });
+
+    const accessToken = user?.withings?.accessToken;
+    console.log(accessToken);
+
+    const body = new URLSearchParams({
+      action: "getmeas",
+      access_token: accessToken!,
+    });
+
+    const response = await fetch("https://wbsapi.withings.net/measure", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+    const data = await response.json();
+    return res.status(200).json(data);
   },
 );
