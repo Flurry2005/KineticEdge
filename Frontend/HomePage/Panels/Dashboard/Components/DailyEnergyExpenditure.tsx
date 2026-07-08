@@ -29,7 +29,9 @@ function DailyEnergyExpenditure() {
           Calories and Steps
         </span>
       </div>
-      <h2 className="text-white text-3xl font-black tracking-tighter leading-6 "></h2>
+      <h2 className="text-white text-3xl font-black tracking-tighter leading-6 ">
+        TODAY
+      </h2>
       <div className="flex justify-between">
         <p className="text-[#ADAAAA]">
           Calories Burned{" "}
