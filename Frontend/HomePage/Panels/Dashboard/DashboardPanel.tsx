@@ -3,6 +3,17 @@ import { formatWeight } from "../../../utils/FormatWeight";
 import { useSessions } from "../../../Context/useSessions";
 import type { Session } from "../../../types/Session";
 import { useWorkouts } from "../../../Context/useWorkouts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import IntensityPanel from "./Components/IntensityPanel";
+import DailyEnergyExpenditure from "./Components/DailyEnergyExpenditure";
 
 function DashboardPanel() {
   const { sessions } = useSessions();
@@ -43,65 +54,7 @@ function DashboardPanel() {
           />
         </section>
         <section className="flex gap-10 flex-col pb-10 md:pb-0 md:flex-row">
-          <article className="bg-[#131313] lg:w-120 h-70 rounded-2xl justify-between p-6 flex flex-col gap-1">
-            <h2 className="text-[#F3FFCA] font-extrabold text-xs">
-              WEEKLY INTENSITY
-            </h2>
-            <div>
-              <div className="flex items-end gap-2">
-                <h2 className="text-3xl text-white font-extrabold">
-                  {formatWeight(
-                    sessions === undefined
-                      ? 0
-                      : sessions
-                          .filter((session: Session) => {
-                            const now = new Date();
-                            const sessionDate = new Date(session.date);
-
-                            const startOfWeek = new Date(now);
-                            const day = now.getDay();
-                            const diff = (day === 0 ? -6 : 1) - day;
-                            startOfWeek.setDate(now.getDate() + diff);
-                            startOfWeek.setHours(0, 0, 0, 0);
-
-                            const endOfWeek = new Date(startOfWeek);
-                            endOfWeek.setDate(startOfWeek.getDate() + 7);
-
-                            return (
-                              session.completed &&
-                              sessionDate >= startOfWeek &&
-                              sessionDate < endOfWeek
-                            );
-                          })
-                          .reduce((sessionAcc, session) => {
-                            return (
-                              sessionAcc +
-                              session.exercices.reduce(
-                                (exerciseAcc, exercise) => {
-                                  return (
-                                    exerciseAcc +
-                                    (exercise.sets ?? []).reduce(
-                                      (setAcc, set) => {
-                                        return (
-                                          setAcc +
-                                          (set.weight || 0) * (set.reps || 0)
-                                        );
-                                      },
-                                      0,
-                                    )
-                                  );
-                                },
-                                0,
-                              )
-                            );
-                          }, 0),
-                  )}
-                </h2>
-                <p className="text-[#ADAAAA]">TOTAL KGs MOVED</p>
-              </div>
-            </div>
-            <img src="volumePicture.png" alt="" className="w-100 self-center" />
-          </article>
+          <IntensityPanel />
           <article className="bg-[#131313] lg:w-80 h-60 rounded-3xl relative overflow-hidden px-5 flex justify-around flex-col py-5">
             <span className="w-full h-full absolute left-0 top-0 border-[#FF7441] border-l-4"></span>
             <div className="flex justify-between">
@@ -180,6 +133,7 @@ function DashboardPanel() {
               </p>
             </div>
           </article>
+          <DailyEnergyExpenditure />
         </section>
       </main>
     </div>

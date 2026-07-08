@@ -277,7 +277,7 @@ function MeasurementsPanel() {
             Weight Progress
           </h2>
 
-          <div className="bg-zinc-900 rounded-xl p-6 h-[450px]">
+          <div className="bg-zinc-900 rounded-xl py-6 pr-10  h-[450px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={filteredWeight}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -336,7 +336,7 @@ function MeasurementsPanel() {
             </div>
           </div>
 
-          <div className="bg-zinc-900 rounded-xl p-6 h-[450px]">
+          <div className="bg-zinc-900 rounded-xl py-6 pr-10  h-[450px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={bodyFatChartData} className="focus:border-0">
                 <CartesianGrid strokeDasharray="3 3" />

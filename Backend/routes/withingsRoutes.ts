@@ -154,7 +154,6 @@ router.get(
     const user = await userModel.findById({ _id: res.locals.jwt.userId });
 
     const accessToken = user?.withings?.accessToken;
-    console.log(accessToken);
 
     const body = new URLSearchParams({
       action: "getmeas",
@@ -170,5 +169,56 @@ router.get(
     });
     const data = await response.json();
     return res.status(200).json(data);
+  },
+);
+
+router.get(
+  "/api/withings/activity",
+  jwtMiddleware.jwtTokenIsValid,
+  refreshTokenWithingsMiddleware.checkToken,
+  async (req, res) => {
+    try {
+      const user = await userModel.findById({ _id: res.locals.jwt.userId });
+
+      const accessToken = user?.withings?.accessToken;
+
+      const today = new Date().toISOString().split("T")[0];
+
+      const body = new URLSearchParams({
+        action: "getactivity",
+        startdateymd: today,
+        enddateymd: today,
+        data_fields: "steps,calories,totalcalories",
+      });
+
+      const response = await fetch("https://wbsapi.withings.net/v2/measure", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body,
+      });
+
+      const data = await response.json();
+
+      if (data.status !== 0) {
+        return res.status(400).json(data);
+      }
+
+      const activity = data.body.activities?.[0] ?? {};
+
+      res.json({
+        date: today,
+        steps: activity.steps ?? 0,
+        activeCalories: activity.calories ?? 0,
+        totalCalories: activity.totalcalories ?? 0,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: "Failed to fetch activity",
+      });
+    }
   },
 );
