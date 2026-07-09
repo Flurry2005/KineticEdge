@@ -30,16 +30,14 @@ function LoginPage() {
             </p>
             <div className="flex gap-10">
               <div className="flex flex-col">
-                <p className="text-[#F3FFCA] font-extrabold">1.2M+</p>
+                <p className="text-[#F3FFCA] font-extrabold">SUPPORT</p>
                 <p className="text-[#ADAAAA] font-extrabold text-xs">
-                  ACTIVE ATHLETES
+                  WITHINGS
                 </p>
               </div>
               <div className="flex flex-col">
-                <p className="text-[#F3FFCA] font-extrabold">500k+</p>
-                <p className="text-[#ADAAAA] font-extrabold text-xs">
-                  PRS LOGGED
-                </p>
+                <p className="text-[#F3FFCA] font-extrabold">JOIN</p>
+                <p className="text-[#ADAAAA] font-extrabold text-xs">TODAY!</p>
               </div>
             </div>
           </section>

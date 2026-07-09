@@ -202,7 +202,7 @@ router.get(
         action: "getactivity",
         startdateymd: today,
         enddateymd: today,
-        data_fields: "steps,calories,totalcalories",
+        data_fields: "steps,calories,totalcalories,distance",
       });
 
       const response = await fetch("https://wbsapi.withings.net/v2/measure", {
@@ -227,6 +227,7 @@ router.get(
         steps: activity.steps ?? 0,
         activeCalories: activity.calories ?? 0,
         totalCalories: activity.totalcalories ?? 0,
+        distance: activity.distance ?? 0,
       });
     } catch (err) {
       console.error(err);

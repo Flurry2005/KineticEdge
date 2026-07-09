@@ -1,4 +1,4 @@
-import { Footprints } from "lucide-react";
+import { Footprints, Road, WavesVertical } from "lucide-react";
 import React, { act, useEffect, useState } from "react";
 
 function DailyEnergyExpenditure() {
@@ -33,15 +33,28 @@ function DailyEnergyExpenditure() {
         TODAY
       </h2>
       <div className="flex justify-between">
-        <p className="text-[#ADAAAA]">
+        <p className="text-[#ADAAAA] flex items-center gap-3">
           Calories Burned{" "}
-          {activityData === null ? "Loading..." : activityData!.activeCalories!}
+          {activityData === null ? "Loading..." : activityData!.activeCalories!}{" "}
+          <WavesVertical className="text-orange-400 w-4 h-4" />
         </p>
         <p className="text-white"></p>
       </div>
       <div className="flex justify-between">
-        <p className="text-[#ADAAAA]">
+        <p className="text-[#ADAAAA] flex gap-3 items-center">
           Steps {activityData === null ? "Loading..." : activityData!.steps!}
+          <Footprints className="text-[#d1be0f]" />
+        </p>
+        <p className="text-[#FF7441]"></p>
+      </div>
+      <div className="flex justify-between">
+        <p className="text-[#ADAAAA] flex gap-3 items-center">
+          Distance{" "}
+          {activityData === null
+            ? "Loading..."
+            : (activityData!.distance! / 1000).toFixed(2)}{" "}
+          KM
+          <Road className="text-[#b11c23]" />
         </p>
         <p className="text-[#FF7441]"></p>
       </div>
