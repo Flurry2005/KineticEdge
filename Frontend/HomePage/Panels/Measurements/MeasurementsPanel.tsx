@@ -33,6 +33,11 @@ interface BodyFatPoint {
   percent: number | null;
   kg: number | null;
 }
+interface MuscleMassPoint {
+  timestamp: number;
+  date: string;
+  kg: number;
+}
 
 type Range = "all" | "year" | "month" | "week";
 type BodyFatMode = "percent" | "kg";
@@ -40,6 +45,8 @@ type BodyFatMode = "percent" | "kg";
 function MeasurementsPanel() {
   const [weightData, setWeightData] = useState<WeightPoint[]>([]);
   const [bodyFatData, setBodyFatData] = useState<BodyFatPoint[]>([]);
+
+  const [muscleMassData, setMuscleMassData] = useState<MuscleMassPoint[]>([]);
 
   const [range, setRange] = useState<Range>("all");
   const [bodyFatMode, setBodyFatMode] = useState<BodyFatMode>("percent");
@@ -72,6 +79,23 @@ function MeasurementsPanel() {
       })
       .filter((x): x is WeightPoint => x !== null)
       .sort((a, b) => a.timestamp - b.timestamp);
+
+    const muscleMass: MuscleMassPoint[] = json.body.measuregrps
+      .map((group: MeasureGroup) => {
+        const measure = group.measures.find((m) => m.type === 76);
+
+        if (!measure) return null;
+
+        return {
+          timestamp: group.date,
+          date: new Date(group.date * 1000).toLocaleDateString(),
+          kg: measure.value * Math.pow(10, measure.unit),
+        };
+      })
+      .filter((x): x is MuscleMassPoint => x !== null)
+      .sort((a, b) => a.timestamp - b.timestamp);
+
+    setMuscleMassData(muscleMass);
 
     const bodyFat: BodyFatPoint[] = json.body.measuregrps
       .map((group: MeasureGroup) => {
@@ -130,6 +154,10 @@ function MeasurementsPanel() {
     () => filterData(weightData),
     [weightData, range, currentDate],
   );
+  const filteredMuscleMass = useMemo(
+    () => filterData(muscleMassData),
+    [muscleMassData, range, currentDate],
+  );
 
   const filteredBodyFat = useMemo(
     () => filterData(bodyFatData),
@@ -146,6 +174,16 @@ function MeasurementsPanel() {
       max: Math.ceil(Math.max(...values)) + 1,
     };
   }, [filteredWeight]);
+  const muscleMassBounds = useMemo(() => {
+    if (!filteredMuscleMass.length) return { min: 0, max: 100 };
+
+    const values = filteredMuscleMass.map((x) => x.kg);
+
+    return {
+      min: Math.floor(Math.min(...values)) - 1,
+      max: Math.ceil(Math.max(...values)) + 1,
+    };
+  }, [filteredMuscleMass]);
 
   const bodyFatBounds = useMemo(() => {
     const values = filteredBodyFat
@@ -222,7 +260,7 @@ function MeasurementsPanel() {
     <div>
       <NavBar />
 
-      <main className="flex flex-col px-10 gap-10 h-full pt-10 w-full">
+      <main className="flex flex-col px-10 gap-5 h-full pt-10 w-full">
         <section className="flex flex-wrap justify-between items-center gap-4">
           <h2 className="text-3xl font-black text-white">Measurements</h2>
 
@@ -360,6 +398,38 @@ function MeasurementsPanel() {
                 <Line
                   dataKey="value"
                   stroke="#22c55e"
+                  strokeWidth={3}
+                  type="natural"
+                  dot={{ r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+        <section>
+          <h2 className="text-3xl text-white font-black mb-4">Muscle Mass</h2>
+          <div className="bg-zinc-900 rounded-xl py-6 pr-10  h-[450px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={filteredMuscleMass}>
+                <CartesianGrid strokeDasharray="3 3" />
+
+                <XAxis dataKey="date" />
+
+                <YAxis
+                  domain={[muscleMassBounds.min, muscleMassBounds.max]}
+                  unit=" kg"
+                />
+
+                <Tooltip
+                  formatter={(value: number) => [
+                    `${value.toFixed(2)} kg`,
+                    "Muscle Mass",
+                  ]}
+                />
+
+                <Line
+                  dataKey="kg"
+                  stroke="#f97316"
                   strokeWidth={3}
                   type="natural"
                   dot={{ r: 4 }}

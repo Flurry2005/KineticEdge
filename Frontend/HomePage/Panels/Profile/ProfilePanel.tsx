@@ -61,7 +61,7 @@ function ProfilePanel() {
     };
 
     fetchUser();
-  }, []);
+  }, [username]);
 
   const { sessions } = useSessions();
 
@@ -194,7 +194,7 @@ function ProfilePanel() {
                   alt=""
                   className="rounded-full border-5 border-[#1A1A1A] h-50 w-auto aspect-square"
                 />
-                {!otherUser && (
+                {!otherProfile && (
                   <a
                     className=" w-10 h-10 rounded-full cursor-pointer absolute -bottom-4 -right-5"
                     onClick={openFilePicker}

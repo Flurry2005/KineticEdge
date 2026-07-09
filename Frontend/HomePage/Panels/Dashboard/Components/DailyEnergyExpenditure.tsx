@@ -35,20 +35,20 @@ function DailyEnergyExpenditure() {
       <div className="flex justify-between">
         <p className="text-[#ADAAAA]">
           Calories Burned{" "}
-          {activityData === null ? 0 : activityData!.activeCalories!}
+          {activityData === null ? "Loading..." : activityData!.activeCalories!}
         </p>
         <p className="text-white"></p>
       </div>
       <div className="flex justify-between">
         <p className="text-[#ADAAAA]">
-          Steps {activityData === null ? 0 : activityData!.steps!}
+          Steps {activityData === null ? "Loading..." : activityData!.steps!}
         </p>
         <p className="text-[#FF7441]"></p>
       </div>
       <div className="flex justify-between">
         <p className="text-[#ADAAAA]">
           TOTAL CALORIES{" "}
-          {activityData === null ? 0 : activityData!.totalCalories!}
+          {activityData === null ? "Loading..." : activityData!.totalCalories!}
         </p>
         <p className="text-[#FF7441]"></p>
       </div>

@@ -12,7 +12,13 @@ router.get(
     req.session.withingsState = state;
 
     const clientId = process.env.WITHINGS_CLIENT_ID;
-    const redirectUri = process.env.WITHINGS_REDIRECT_URI;
+    let redirectUri = process.env.WITHINGS_REDIRECT_URI;
+    if (req.host.toString() === "localhost:3000") {
+      redirectUri = redirectUri!.replace(
+        "https://api.kineticedge.liamjorgensen.dev",
+        "http://localhost:3000",
+      );
+    }
 
     if (!clientId || !redirectUri) {
       throw new Error("Missing Withings env vars");
@@ -58,10 +64,17 @@ router.get(
   async (req, res) => {
     const code = req.query.code;
     const state = req.query.state;
+    console.log("State", state);
 
     try {
       const clientId = process.env.WITHINGS_CLIENT_ID;
-      const redirectUri = process.env.WITHINGS_REDIRECT_URI;
+      let redirectUri = process.env.WITHINGS_REDIRECT_URI;
+      if (req.host.toString() === "localhost:3000") {
+        redirectUri = redirectUri!.replace(
+          "https://api.kineticedge.liamjorgensen.dev",
+          "http://localhost:3000",
+        );
+      }
       const clientSecret = process.env.WITHINGS_CLIENT_SECRET;
 
       if (!clientId || !redirectUri || !clientSecret) {
@@ -78,7 +91,7 @@ router.get(
       if (typeof state !== "string") {
         return res.status(400).send("Invalid or missing state");
       }
-
+      console.log(req.session.withingsState);
       if (state !== req.session.withingsState) {
         return res.status(400).send("Invalid state");
       }
@@ -136,6 +149,7 @@ router.get(
       // -----------------------------
       // 6. Redirect back to frontend
       // -----------------------------
+      console.log(process.env.FRONTEND_URL);
       return res.redirect(
         `${process.env.FRONTEND_URL || "http://localhost:5173"}/settings?withings=connected`,
       );
