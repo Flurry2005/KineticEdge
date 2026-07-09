@@ -1,4 +1,4 @@
-# Fullstack Lab
+# Kinetic Edge
 
 This app solves the problem of inconsistent and unstructured workout tracking by giving users a complete system to plan, log, and analyze their gym training in one place; users can create custom workouts with names, descriptions, and exercises, schedule them as training sessions on specific dates, and accurately track performance by logging sets, reps, and weight for each exercise, while also providing long-term progress insights such as total completed workouts, current and best streaks, and monthly training volume to help users stay consistent and progressively improve over time.
 
@@ -15,7 +15,7 @@ project-root/src/
 ## Installation
 Clone the repository
 ```bash
-git clone https://github.com/Flurry2005/Fullstack-Lab.git
+git clone https://github.com/Flurry2005/KineticEdge.git
 ```
 
 ---
@@ -92,6 +92,11 @@ PORT = eg. 3000
 DB_URL = mongodb+srv://<username>:<mongodblink>/<database>?appName=<AppName>
 
 JWT_SECRET = asecuresecrectkey
+WITHINGS_CLIENT_ID = ...
+WITHINGS_REDIRECT_URI = ...
+WITHINGS_CLIENT_SECRET = ...
+NODE_ENV = ...
+FRONTEND_URL = ...
 ```
 
 Use it like:
