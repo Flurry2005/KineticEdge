@@ -14,8 +14,10 @@ export default function AddFoodModal({
   onClose,
   onAdded,
 }: AddFoodModalProps) {
-  const [quantityGrams, setQuantityGrams] = useState(100);
+  const [quantityGramsInput, setQuantityGramsInput] = useState("100");
   const [loading, setLoading] = useState(false);
+
+  const quantityGrams = Number(quantityGramsInput) || 0;
 
   const caloriesPer100g = Number(product.nutriments?.["energy-kcal_100g"]) || 0;
 
@@ -38,7 +40,7 @@ export default function AddFoodModal({
     try {
       setLoading(true);
 
-      await fetch(
+      const response = await fetch(
         import.meta.env.DEV
           ? "http://192.168.1.201:3000/add-food-product"
           : "https://api.kineticedge.liamjorgensen.dev/add-food-product",
@@ -79,6 +81,10 @@ export default function AddFoodModal({
         },
       );
 
+      if (!response.ok) {
+        throw new Error("Failed adding product");
+      }
+
       onAdded();
     } catch (error) {
       console.error("Failed adding product:", error);
@@ -109,8 +115,16 @@ export default function AddFoodModal({
           <input
             type="number"
             min={1}
-            value={quantityGrams}
-            onChange={(e) => setQuantityGrams(Number(e.target.value))}
+            value={quantityGramsInput}
+            onChange={(e) => {
+              let value = e.target.value;
+
+              if (value.length > 1) {
+                value = value.replace(/^0+/, "");
+              }
+
+              setQuantityGramsInput(value);
+            }}
             className="mt-2 w-full rounded-lg bg-neutral-800 p-3 text-white"
           />
         </div>
@@ -134,9 +148,9 @@ export default function AddFoodModal({
           </button>
 
           <button
-            disabled={loading}
+            disabled={loading || quantityGrams <= 0}
             onClick={addProduct}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
           >
             {loading ? "Adding..." : "Add"}
           </button>
