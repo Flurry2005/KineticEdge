@@ -1,6 +1,7 @@
 import { useState } from "react";
 import BarcodeScanner from "../../../../utils/BarcodeScanner";
 import type { Product } from "../../../../utils/BarcodeScanner";
+import { Trash2 } from "lucide-react";
 
 interface TodayPanelProps {
   foodIntakeToday: any;
@@ -106,7 +107,7 @@ export default function TodayPanel({
                 className="text-red-500 bg-red-500/40 px-2 py-1 rounded-xl cursor-pointer"
                 onClick={() => handleRemoveProduct(product._id)}
               >
-                REMOVE
+                <Trash2 />
               </button>
             </div>
           ))}
