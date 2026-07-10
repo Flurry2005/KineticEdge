@@ -93,6 +93,7 @@ function NutritionPanel() {
               product,
             });
           }}
+          updateFoods={fetchData}
         />
       );
 
@@ -124,10 +125,12 @@ function NutritionPanel() {
                   <h2 className="text-[#ADAAAA] text-xs">INTAKE</h2>
 
                   <p className="text-[#F3FFCA] font-black text-sm">
-                    {today?.products?.reduce(
-                      (sum: number, item: any) => sum + item.calories,
-                      0,
-                    ) ?? 0}{" "}
+                    {today?.products
+                      ?.reduce(
+                        (sum: number, item: any) => sum + item.calories,
+                        0,
+                      )
+                      .toFixed(0) ?? 0}{" "}
                     KCAL
                   </p>
                 </article>

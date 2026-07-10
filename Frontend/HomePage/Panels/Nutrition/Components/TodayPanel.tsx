@@ -81,7 +81,7 @@ export default function TodayPanel({
                       {product.quantityGrams} g
                     </p>
                     <p className="text-sm text-gray-400">
-                      {product.calories} kcal
+                      {product.calories.toFixed(0)} kcal
                     </p>
                   </div>
                   {/* Nutrients */}
@@ -101,7 +101,7 @@ export default function TodayPanel({
                 </div>
               </div>
               <button
-                className="text-red-500 bg-red-500/40 px-2 py-1 rounded-xl"
+                className="text-red-500 bg-red-500/40 px-2 py-1 rounded-xl cursor-pointer"
                 onClick={() => handleRemoveProduct(product._id)}
               >
                 REMOVE
