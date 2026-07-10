@@ -1,6 +1,6 @@
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Product = {
   product_name?: string;
@@ -20,10 +20,14 @@ export default function BarcodeScanner() {
 
   const controlsRef = useRef<{ stop: () => void } | null>(null);
 
-  async function startScanner() {
+  function startScanner() {
     setScanning(true);
     setFound(false);
     setError("");
+  }
+
+  useEffect(() => {
+    if (!scanning || !videoRef.current) return;
 
     const hints = new Map<DecodeHintType, unknown>();
 
@@ -39,59 +43,71 @@ export default function BarcodeScanner() {
 
     const reader = new BrowserMultiFormatReader(hints);
 
-    try {
-      controlsRef.current = await reader.decodeFromConstraints(
-        {
-          video: {
-            facingMode: "environment",
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+    async function start() {
+      try {
+        controlsRef.current = await reader.decodeFromConstraints(
+          {
+            video: {
+              facingMode: "environment",
+            },
           },
-        },
-        videoRef.current!,
-        async (result) => {
-          if (!result) return;
+          videoRef.current!,
+          async (result) => {
+            if (!result) return;
 
-          const code = result.getText();
+            const code = result.getText();
 
-          setFound(true);
-          setBarcode(code);
+            setFound(true);
+            setBarcode(code);
 
-          controlsRef.current?.stop();
+            controlsRef.current?.stop();
 
-          const stream = videoRef.current?.srcObject as MediaStream | null;
+            const stream = videoRef.current?.srcObject as MediaStream | null;
 
-          stream?.getTracks().forEach((t) => t.stop());
+            stream?.getTracks().forEach((track) => track.stop());
 
-          setScanning(false);
+            setScanning(false);
 
-          try {
-            const res = await fetch(
-              `https://world.openfoodfacts.org/api/v2/product/${code}.json`,
-            );
+            try {
+              const res = await fetch(
+                `https://world.openfoodfacts.org/api/v2/product/${code}.json`,
+              );
 
-            const data = await res.json();
+              const data = await res.json();
 
-            if (data.status === 1) {
-              setProduct(data.product);
-            } else {
-              setError("Product not found");
+              if (data.status === 1) {
+                setProduct(data.product);
+              } else {
+                setError("Product not found");
+              }
+            } catch {
+              setError("Lookup failed");
             }
-          } catch {
-            setError("Lookup failed");
-          }
-        },
-      );
-    } catch (e) {
-      console.error("Camera error:", e);
+          },
+        );
+      } catch (e) {
+        console.error("Camera error:", e);
 
-      if (e instanceof DOMException) {
-        setError(`${e.name}: ${e.message}`);
-      } else {
-        setError(String(e));
+        if (e instanceof DOMException) {
+          setError(`${e.name}: ${e.message}`);
+        } else {
+          setError(String(e));
+        }
+
+        setScanning(false);
       }
     }
-  }
+
+    start();
+
+    return () => {
+      controlsRef.current?.stop();
+
+      const stream = videoRef.current?.srcObject as MediaStream | null;
+
+      stream?.getTracks().forEach((track) => track.stop());
+    };
+  }, [scanning]);
 
   function stopScanner() {
     controlsRef.current?.stop();
