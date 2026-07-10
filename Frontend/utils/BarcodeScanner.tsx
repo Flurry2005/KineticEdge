@@ -10,6 +10,8 @@ type Product = {
 
 export default function BarcodeScanner() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const controlsRef = useRef<{ stop: () => void } | null>(null);
+  const foundRef = useRef(false);
 
   const [scanning, setScanning] = useState(false);
   const [found, setFound] = useState(false);
@@ -18,9 +20,9 @@ export default function BarcodeScanner() {
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState("");
 
-  const controlsRef = useRef<{ stop: () => void } | null>(null);
-
   function startScanner() {
+    foundRef.current = false;
+
     setScanning(true);
     setFound(false);
     setError("");
@@ -55,34 +57,41 @@ export default function BarcodeScanner() {
           async (result) => {
             if (!result) return;
 
+            if (foundRef.current) return;
+
+            foundRef.current = true;
+
             const code = result.getText();
 
             setFound(true);
             setBarcode(code);
 
-            controlsRef.current?.stop();
+            // Let green animation play before exiting
+            setTimeout(async () => {
+              controlsRef.current?.stop();
 
-            const stream = videoRef.current?.srcObject as MediaStream | null;
+              const stream = videoRef.current?.srcObject as MediaStream | null;
 
-            stream?.getTracks().forEach((track) => track.stop());
+              stream?.getTracks().forEach((track) => track.stop());
 
-            setScanning(false);
+              setScanning(false);
 
-            try {
-              const res = await fetch(
-                `https://world.openfoodfacts.org/api/v2/product/${code}.json`,
-              );
+              try {
+                const res = await fetch(
+                  `https://world.openfoodfacts.org/api/v2/product/${code}.json`,
+                );
 
-              const data = await res.json();
+                const data = await res.json();
 
-              if (data.status === 1) {
-                setProduct(data.product);
-              } else {
-                setError("Product not found");
+                if (data.status === 1) {
+                  setProduct(data.product);
+                } else {
+                  setError("Product not found");
+                }
+              } catch {
+                setError("Lookup failed");
               }
-            } catch {
-              setError("Lookup failed");
-            }
+            }, 500);
           },
         );
       } catch (e) {
@@ -144,16 +153,23 @@ export default function BarcodeScanner() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div
               className={`
-                w-72 h-40 border-4 rounded-xl
-                ${found ? "border-green-500" : "border-white"}
+                w-72 h-40 rounded-xl border-4
+                transition-all duration-300 ease-out
+                ${
+                  found
+                    ? "border-green-400 bg-green-400/20 scale-105 shadow-[0_0_40px_15px_rgba(34,197,94,0.8)]"
+                    : "border-white"
+                }
               `}
             />
           </div>
 
           <button
             onClick={stopScanner}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2
-                       bg-white px-6 py-3 rounded"
+            className="
+              absolute bottom-10 left-1/2 -translate-x-1/2
+              bg-white px-6 py-3 rounded
+            "
           >
             Cancel
           </button>
