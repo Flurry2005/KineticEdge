@@ -2,35 +2,31 @@ import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
 import { useEffect, useRef, useState } from "react";
 
-type Product = {
+export type Product = {
   product_name?: string;
   brands?: string;
   image_front_url?: string;
-  nutriments: any;
+  nutriments?: any;
 };
 
-export default function BarcodeScanner() {
+interface BarcodeScannerProps {
+  onClose: () => void;
+  onProductFound: (barcode: string, product: Product) => void;
+}
+
+export default function BarcodeScanner({
+  onClose,
+  onProductFound,
+}: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsRef = useRef<{ stop: () => void } | null>(null);
   const foundRef = useRef(false);
 
-  const [scanning, setScanning] = useState(false);
   const [found, setFound] = useState(false);
-
-  const [barcode, setBarcode] = useState("");
-  const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState("");
 
-  function startScanner() {
-    foundRef.current = false;
-
-    setScanning(true);
-    setFound(false);
-    setError("");
-  }
-
   useEffect(() => {
-    if (!scanning || !videoRef.current) return;
+    if (!videoRef.current) return;
 
     const hints = new Map<DecodeHintType, unknown>();
 
@@ -56,55 +52,48 @@ export default function BarcodeScanner() {
           },
           videoRef.current!,
           async (result) => {
-            if (!result) return;
-
-            if (foundRef.current) return;
+            if (!result || foundRef.current) return;
 
             foundRef.current = true;
-
-            const code = result.getText();
-
             setFound(true);
-            setBarcode(code);
 
-            // Let green animation play before exiting
+            const barcode = result.getText();
+
             setTimeout(async () => {
               controlsRef.current?.stop();
 
               const stream = videoRef.current?.srcObject as MediaStream | null;
-
               stream?.getTracks().forEach((track) => track.stop());
-
-              setScanning(false);
 
               try {
                 const res = await fetch(
-                  `https://world.openfoodfacts.org/api/v2/product/${code}?fields=product_name,nutrition,brands,image_front_url`,
+                  `https://world.openfoodfacts.org/api/v3/product/${barcode}?fields=product_name,nutriments,brands,image_front_url`,
                 );
 
                 const data = await res.json();
 
-                if (data.status === 1) {
-                  setProduct(data.product);
+                if (data.status === "success") {
+                  onProductFound(barcode, data.product);
+                  onClose();
                 } else {
                   setError("Product not found");
+                  foundRef.current = false;
+                  setFound(false);
                 }
               } catch {
                 setError("Lookup failed");
+                foundRef.current = false;
+                setFound(false);
               }
             }, 500);
           },
         );
       } catch (e) {
-        console.error("Camera error:", e);
-
         if (e instanceof DOMException) {
           setError(`${e.name}: ${e.message}`);
         } else {
           setError(String(e));
         }
-
-        setScanning(false);
       }
     }
 
@@ -114,127 +103,40 @@ export default function BarcodeScanner() {
       controlsRef.current?.stop();
 
       const stream = videoRef.current?.srcObject as MediaStream | null;
-
       stream?.getTracks().forEach((track) => track.stop());
     };
-  }, [scanning]);
-
-  function stopScanner() {
-    controlsRef.current?.stop();
-
-    const stream = videoRef.current?.srcObject as MediaStream | null;
-
-    stream?.getTracks().forEach((t) => t.stop());
-
-    setScanning(false);
-  }
+  }, []);
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      {!scanning && (
-        <button
-          onClick={startScanner}
-          className="px-6 py-3 rounded bg-black text-white"
-        >
-          Scan barcode
-        </button>
-      )}
-      <button
-        className="
-      bg-white rounded-2xl px-2 py-1"
-        onClick={async () => {
-          const res = await fetch(
-            `https://world.openfoodfacts.org/api/v3/product/7318690081487?fields=product_name,nutrition,brands,image_front_url`,
-          );
-          const data = await res.json();
+    <div className="fixed inset-0 z-50 bg-black">
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        className="absolute inset-0 h-full w-full object-cover"
+      />
 
-          if (data.status === "success") {
-            setProduct(data.product);
-          } else {
-            setError("Product not found");
-          }
-        }}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          className={`w-72 h-40 rounded-xl border-4 transition-all duration-300 ${
+            found
+              ? "border-green-400 bg-green-400/20 scale-105"
+              : "border-white"
+          }`}
+        />
+      </div>
+
+      <button
+        onClick={onClose}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 rounded bg-white px-6 py-3"
       >
-        Test
+        Cancel
       </button>
 
-      {scanning && (
-        <div className="fixed inset-0 bg-black z-50">
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-
-          {/* Scanner box */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div
-              className={`
-                w-72 h-40 rounded-xl border-4
-                transition-all duration-300 ease-out
-                ${
-                  found
-                    ? "border-green-400 bg-green-400/20 scale-105 shadow-[0_0_40px_15px_rgba(34,197,94,0.8)]"
-                    : "border-white"
-                }
-              `}
-            />
-          </div>
-
-          <button
-            onClick={stopScanner}
-            className="
-              absolute bottom-10 left-1/2 -translate-x-1/2
-              bg-white px-6 py-3 rounded
-            "
-          >
-            Cancel
-          </button>
-        </div>
-      )}
-
-      <p className="text-white">Barcode: {barcode || "Not scanned"}</p>
-
-      {error && <p className="text-red-500">{error}</p>}
-
-      {product && (
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-white">
-            {product.product_name}
-          </h2>
-
-          <p className="text-white">{product.brands}</p>
-
-          {product.image_front_url && (
-            <img src={product.image_front_url} className="w-48 mx-auto" />
-          )}
-          {product.nutriments &&
-            Object.entries(product.nutriments)
-              .filter(([key]) =>
-                [
-                  "energy-kcal_100g",
-                  "carbohydrates_100g",
-                  "fat_100g",
-                  "proteins_100g",
-                ].includes(key),
-              )
-              .map(([key, value]) => {
-                const labels: Record<string, string> = {
-                  "energy-kcal_100g": "Calories",
-                  carbohydrates_100g: "Carbs",
-                  fat_100g: "Fat",
-                  proteins_100g: "Protein",
-                };
-
-                return (
-                  <p className="text-white" key={key}>
-                    {labels[key]}: {value}
-                    {key === "energy-kcal_100g" ? " kcal" : " g"}
-                  </p>
-                );
-              })}
+      {error && (
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 rounded bg-red-500 px-4 py-2 text-white">
+          {error}
         </div>
       )}
     </div>

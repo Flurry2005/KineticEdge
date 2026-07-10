@@ -136,7 +136,6 @@ function DashboardPanel() {
           </article>
           <DailyEnergyExpenditure />
         </section>
-        <BarcodeScanner />
       </main>
     </div>
   );

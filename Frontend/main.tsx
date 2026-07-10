@@ -37,6 +37,10 @@ const router = createBrowserRouter([
         path: "/measurements",
         element: <MainPanel panel={Panel.MEASUREMENTS} />,
       },
+      {
+        path: "/nutrition",
+        element: <MainPanel panel={Panel.NUTRITION} />,
+      },
     ],
   },
 ]);

@@ -11,8 +11,9 @@ import { WorkoutProvider } from "../Context/useWorkouts";
 import { useParams } from "react-router-dom";
 import { ExerciceProvider } from "../Context/useExercices";
 import SettingsPanel from "./Panels/Settings/SettingsPanel";
-import { BicepsFlexed, Settings as SettingsIcon } from "lucide-react";
+import { Apple, BicepsFlexed, Settings as SettingsIcon } from "lucide-react";
 import MeasurementsPanel from "./Panels/Measurements/MeasurementsPanel";
+import NutritionPanel from "./Panels/Nutrition/NutritionPanel";
 
 export const Panel = {
   HOME: "HOME",
@@ -21,6 +22,7 @@ export const Panel = {
   PROFILE: "PROFILE",
   MEASUREMENTS: "MEASUREMENTS",
   SETTINGS: "SETTINGS",
+  NUTRITION: "NUTRITION",
 } as const;
 
 export type ActivePanel = (typeof Panel)[keyof typeof Panel];
@@ -82,6 +84,19 @@ function MainPanel({ panel }: Props) {
             <WorkoutProvider>
               <SessionProvider>
                 <MeasurementsPanel />
+              </SessionProvider>
+            </WorkoutProvider>
+            ,
+          </ExerciceProvider>,
+        );
+        break;
+      }
+      case Panel.NUTRITION: {
+        setActivePanelElement(
+          <ExerciceProvider>
+            <WorkoutProvider>
+              <SessionProvider>
+                <NutritionPanel />
               </SessionProvider>
             </WorkoutProvider>
             ,
@@ -190,7 +205,26 @@ function MainPanel({ panel }: Props) {
                   />
                   Workouts
                 </Link>
-
+                <Link
+                  to={"/nutrition"}
+                  onClick={() => {
+                    setActivePanel(Panel.NUTRITION);
+                  }}
+                  className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.NUTRITION ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
+                >
+                  <Apple></Apple>
+                  Nutrition
+                </Link>
+                <Link
+                  to={"/measurements"}
+                  onClick={() => {
+                    setActivePanel(Panel.MEASUREMENTS);
+                  }}
+                  className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.MEASUREMENTS ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
+                >
+                  <BicepsFlexed></BicepsFlexed>
+                  Measurements
+                </Link>
                 <Link
                   to={"/profile/" + user.username}
                   onClick={() => {
@@ -218,16 +252,6 @@ function MainPanel({ panel }: Props) {
                   Profile
                 </Link>
 
-                <Link
-                  to={"/measurements"}
-                  onClick={() => {
-                    setActivePanel(Panel.MEASUREMENTS);
-                  }}
-                  className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.MEASUREMENTS ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
-                >
-                  <BicepsFlexed></BicepsFlexed>
-                  Measurements
-                </Link>
                 <Link
                   to={"/settings"}
                   onClick={() => {
