@@ -102,6 +102,68 @@ router.post(
     }
   },
 );
+router.delete(
+  "/remove-food-product",
+  jwtMiddleware.jwtTokenIsValid,
+  async (req, res) => {
+    try {
+      const userId = res.locals.jwt.userId;
+
+      const { _id } = req.body;
+
+      if (!_id) {
+        return res.status(400).json({
+          message: "Missing product id",
+        });
+      }
+
+      const today = new Date().toISOString().split("T")[0];
+
+      const foodIntake = await foodInTakeModel.findOne({
+        userId,
+      });
+
+      if (!foodIntake) {
+        return res.status(404).json({
+          message: "Food intake not found",
+        });
+      }
+
+      const todayEntry = foodIntake.days.find((day) => day.date === today);
+
+      if (!todayEntry) {
+        return res.status(404).json({
+          message: "No food logged today",
+        });
+      }
+
+      const productIndex = todayEntry.products.findIndex(
+        (product) => product._id.toString() === _id,
+      );
+
+      if (productIndex === -1) {
+        return res.status(404).json({
+          message: "Product not found",
+        });
+      }
+
+      todayEntry.products.splice(productIndex, 1);
+
+      await foodIntake.save();
+
+      return res.status(200).json({
+        message: "Product removed",
+        foodIntake,
+      });
+    } catch (error) {
+      console.error("Remove food product error:", error);
+
+      return res.status(500).json({
+        message: "Server error",
+      });
+    }
+  },
+);
 
 router.get(
   "/get-all-foodIntake",

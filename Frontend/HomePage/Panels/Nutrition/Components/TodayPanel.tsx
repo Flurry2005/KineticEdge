@@ -5,13 +5,36 @@ import type { Product } from "../../../../utils/BarcodeScanner";
 interface TodayPanelProps {
   foodIntakeToday: any;
   onProductFound: (barcode: string, product: Product) => void;
+  updateFoods: any;
 }
 
 export default function TodayPanel({
   foodIntakeToday,
   onProductFound,
+  updateFoods,
 }: TodayPanelProps) {
   const [showScanner, setShowScanner] = useState(false);
+
+  const handleRemoveProduct = async (_id: any) => {
+    const res = await fetch(
+      import.meta.env.DEV
+        ? "http://192.168.1.201:3000/remove-food-product"
+        : "https://api.kineticedge.liamjorgensen.dev/remove-food-product",
+      {
+        credentials: "include",
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          _id,
+        }),
+      },
+    );
+    if (res.ok) {
+      updateFoods();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -46,18 +69,43 @@ export default function TodayPanel({
                   {product.productName}
                 </h3>
 
-                {product.productBrand && (
-                  <p className="text-sm text-gray-400">
-                    {product.productBrand}
-                  </p>
-                )}
-
-                <p className="text-sm text-gray-400">
-                  {product.quantityGrams} g
-                </p>
-
-                <p className="text-sm text-gray-400">{product.calories} kcal</p>
+                <div className="flex gap-5">
+                  {/* Overview */}
+                  <div>
+                    {product.productBrand && (
+                      <p className="text-sm text-gray-400">
+                        {product.productBrand}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-400">
+                      {product.quantityGrams} g
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {product.calories} kcal
+                    </p>
+                  </div>
+                  {/* Nutrients */}
+                  <div>
+                    {product.carbohydratesGrams && (
+                      <p className="text-sm text-gray-400">
+                        Carbs: {product.carbohydratesGrams} g
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-400">
+                      Fat: {product.fatsGrams} g
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      Protein: {product.proteinGrams} g
+                    </p>
+                  </div>
+                </div>
               </div>
+              <button
+                className="text-red-500 bg-red-500/40 px-2 py-1 rounded-xl"
+                onClick={() => handleRemoveProduct(product._id)}
+              >
+                REMOVE
+              </button>
             </div>
           ))}
         </div>

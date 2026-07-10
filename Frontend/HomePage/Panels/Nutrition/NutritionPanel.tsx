@@ -72,6 +72,7 @@ function NutritionPanel() {
               product,
             });
           }}
+          updateFoods={fetchData}
         />
       );
 
@@ -122,7 +123,7 @@ function NutritionPanel() {
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
                   <h2 className="text-[#ADAAAA] text-xs">INTAKE</h2>
 
-                  <p className="text-[#F3FFCA] font-black text-xl">
+                  <p className="text-[#F3FFCA] font-black text-sm">
                     {today?.products?.reduce(
                       (sum: number, item: any) => sum + item.calories,
                       0,
@@ -130,11 +131,44 @@ function NutritionPanel() {
                     KCAL
                   </p>
                 </article>
+                <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
+                  <h2 className="text-[#ADAAAA] text-xs">CARBS</h2>
+
+                  <p className="text-[#F3FFCA] font-black text-sm">
+                    {today?.products?.reduce(
+                      (sum: number, item: any) => sum + item.carbohydratesGrams,
+                      0,
+                    ) ?? 0}
+                    {"g "}
+                  </p>
+                </article>
+                <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
+                  <h2 className="text-[#ADAAAA] text-xs">FAT</h2>
+
+                  <p className="text-[#F3FFCA] font-black text-sm">
+                    {today?.products?.reduce(
+                      (sum: number, item: any) => sum + item.fatsGrams,
+                      0,
+                    ) ?? 0}
+                    {"g "}
+                  </p>
+                </article>
+                <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
+                  <h2 className="text-[#ADAAAA] text-xs">PROTEIN</h2>
+
+                  <p className="text-[#F3FFCA] font-black text-sm">
+                    {today?.products?.reduce(
+                      (sum: number, item: any) => sum + item.proteinGrams,
+                      0,
+                    ) ?? 0}
+                    {"g "}
+                  </p>
+                </article>
 
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
                   <h2 className="text-[#ADAAAA] text-xs">PRODUCTS</h2>
 
-                  <p className="text-[#FF7441] font-black text-xl">
+                  <p className="text-[#FF7441] font-black text-sm">
                     {today?.products?.length ?? 0}
                   </p>
                 </article>
