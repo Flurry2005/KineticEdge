@@ -113,15 +113,22 @@ export default function AddFoodModal({
           <label className="text-sm text-gray-400">Quantity grams</label>
 
           <input
-            type="number"
-            min={1}
+            type="text"
+            inputMode="numeric"
             value={quantityGramsInput}
             onChange={(e) => {
               let value = e.target.value;
 
-              if (value.length > 1) {
-                value = value.replace(/^0+/, "");
+              // Tillåt endast siffror
+              value = value.replace(/\D/g, "");
+
+              // Om fältet blir tomt, sätt tillbaka 0
+              if (value === "") {
+                value = "0";
               }
+
+              // Ta bort ledande nollor
+              value = value.replace(/^0+(?=\d)/, "");
 
               setQuantityGramsInput(value);
             }}
