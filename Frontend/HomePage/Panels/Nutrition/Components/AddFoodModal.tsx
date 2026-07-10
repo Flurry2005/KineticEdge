@@ -44,6 +44,7 @@ export default function AddFoodModal({
           : "https://api.kineticedge.liamjorgensen.dev/add-food-product",
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
