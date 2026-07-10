@@ -47,7 +47,7 @@ export async function Login(email: string, password: string) {
   try {
     const response = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:3000/login`
+        ? `http://192.168.1.201:3000/login`
         : "https://api.kineticedge.liamjorgensen.dev/login",
       {
         method: "POST",

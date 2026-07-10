@@ -63,7 +63,7 @@ export async function Register(
   try {
     const response = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:3000/register`
+        ? `http://192.168.1.201:3000/register`
         : "https://api.kineticedge.liamjorgensen.dev/register",
       {
         method: "POST",

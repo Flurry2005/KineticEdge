@@ -48,7 +48,7 @@ function SettingsPanel() {
                 onClick={async () => {
                   if (user?.withings.connected) {
                     const baseUrl = import.meta.env.DEV
-                      ? "http://localhost:3000"
+                      ? "http://192.168.1.201:3000"
                       : "https://api.kineticedge.liamjorgensen.dev";
 
                     const res = await fetch(
@@ -67,7 +67,7 @@ function SettingsPanel() {
                     }
                   } else {
                     window.location.href = import.meta.env.DEV
-                      ? "http://localhost:3000/api/auth/withings/login"
+                      ? "http://192.168.1.201:3000/api/auth/withings/login"
                       : "https://api.kineticedge.liamjorgensen.dev/api/auth/withings/login";
                   }
                 }}

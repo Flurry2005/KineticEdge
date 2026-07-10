@@ -4,7 +4,7 @@ export async function updateUser(user: User) {
   try {
     const response = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:3000/update-user`
+        ? `http://192.168.1.201:3000/update-user`
         : "https://api.kineticedge.liamjorgensen.dev/update-user",
       {
         method: "POST",

@@ -8,7 +8,7 @@ export async function addSession(workoutId: string, date: Date) {
   try {
     const response = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:3000/add-session`
+        ? `http://192.168.1.201:3000/add-session`
         : "https://api.kineticedge.liamjorgensen.dev/add-session",
       {
         method: "POST",

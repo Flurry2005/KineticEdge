@@ -7,7 +7,7 @@ function DailyEnergyExpenditure() {
   const getData = async () => {
     const res = await fetch(
       import.meta.env.DEV
-        ? "http://localhost:3000/api/withings/activity"
+        ? "http://192.168.1.201:3000/api/withings/activity"
         : "https://api.kineticedge.liamjorgensen.dev/api/withings/activity",
       { credentials: "include" },
     );

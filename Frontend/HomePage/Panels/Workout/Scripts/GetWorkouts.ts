@@ -2,7 +2,7 @@ export async function getWorkouts() {
   try {
     const response = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:3000/get-workouts`
+        ? `http://192.168.1.201:3000/get-workouts`
         : "https://api.kineticedge.liamjorgensen.dev/get-workouts",
       {
         method: "GET",

@@ -2,7 +2,7 @@ export async function getSessions() {
   try {
     const response = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:3000/get-sessions`
+        ? `http://192.168.1.201:3000/get-sessions`
         : "https://api.kineticedge.liamjorgensen.dev/get-sessions",
       {
         method: "GET",

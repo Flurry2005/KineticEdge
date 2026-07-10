@@ -4,7 +4,7 @@ export async function updateSession(session: Session) {
   try {
     const response = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:3000/update-session`
+        ? `http://192.168.1.201:3000/update-session`
         : "https://api.kineticedge.liamjorgensen.dev/update-session",
       {
         method: "PATCH",

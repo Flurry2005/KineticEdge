@@ -16,7 +16,7 @@ router.get(
     if (req.host.toString() === "localhost:3000") {
       redirectUri = redirectUri!.replace(
         "https://api.kineticedge.liamjorgensen.dev",
-        "http://localhost:3000",
+        "http://192.168.1.201:3000",
       );
     }
 
@@ -72,7 +72,7 @@ router.get(
       if (req.host.toString() === "localhost:3000") {
         redirectUri = redirectUri!.replace(
           "https://api.kineticedge.liamjorgensen.dev",
-          "http://localhost:3000",
+          "http://192.168.1.201:3000",
         );
       }
       const clientSecret = process.env.WITHINGS_CLIENT_SECRET;
@@ -151,7 +151,7 @@ router.get(
       // -----------------------------
       console.log(process.env.FRONTEND_URL);
       return res.redirect(
-        `${process.env.FRONTEND_URL || "http://localhost:5173"}/settings?withings=connected`,
+        `${process.env.FRONTEND_URL || "http://192.168.1.201:5173"}/settings?withings=connected`,
       );
     } catch (err) {
       console.error("OAuth callback error:", err);

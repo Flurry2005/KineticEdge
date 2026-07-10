@@ -66,7 +66,7 @@ All frontend has hardcoded api-urls pointing to localhost endpoints on the backe
 You can call backend like:
 
 ```ts
-fetch("http://localhost:3000/endpoint")
+fetch("http://192.168.1.201:3000/endpoint")
   .then(res => res.json())
   .then(data => console.log(data));
 ```

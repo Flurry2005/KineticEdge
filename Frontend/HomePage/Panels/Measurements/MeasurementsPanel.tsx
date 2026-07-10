@@ -56,7 +56,7 @@ function MeasurementsPanel() {
   const getData = async () => {
     const response = await fetch(
       import.meta.env.DEV
-        ? "http://localhost:3000/api/withings/measurements"
+        ? "http://192.168.1.201:3000/api/withings/measurements"
         : "https://api.kineticedge.liamjorgensen.dev/api/withings/measurements",
       {
         credentials: "include",
