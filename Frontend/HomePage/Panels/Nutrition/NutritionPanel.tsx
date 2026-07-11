@@ -127,14 +127,14 @@ function NutritionPanel() {
     <div className="">
       <NavBar />
 
-      <main className="flex flex-col px-10 gap-10 h-full pt-10 w-full">
-        <section className="flex flex-col md:flex-row justify-between md:mx-10 overflow-hidden h-50 relative min-h-fit gap-5">
-          <aside className="w-9/10 md:w-full h-full flex flex-col md:gap-5">
+      <main className="flex flex-col not-sm:px-3 px-10 gap-10 h-full pt-10 w-full">
+        <section className="flex flex-col md:flex-row justify-between md:mx-10 overflow-hidden relative min-h-fit gap-5">
+          <aside className="w-full md:w-full h-full flex flex-col md:gap-5">
             <p className="text-[#F3FFCA] text-xs w-min">
               {activePanel === Panel.CREATE ? "MAKE A WORKOUT" : "NUTRITION"}
             </p>
 
-            <h2 className="text-white text-6xl font-black tracking-tighter">
+            <h2 className="text-white text-6xl not-sm:text-4xl font-black tracking-tighter">
               {activePanel === Panel.CREATE ? "CREATE WORKOUT" : "NUTRITION"}
             </h2>
 
@@ -143,7 +143,7 @@ function NutritionPanel() {
                 Log your food to track your daily calories and nutrients
               </p>
 
-              <div className="flex gap-5">
+              <div className="flex flex-wrap gap-5 not-sm:grid not-sm:grid-cols-3">
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
                   <h2 className="text-[#ADAAAA] text-xs">EXPENDITURE</h2>
 

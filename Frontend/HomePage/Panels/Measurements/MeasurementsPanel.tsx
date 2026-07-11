@@ -260,8 +260,8 @@ function MeasurementsPanel() {
     <div>
       <NavBar />
 
-      <main className="flex flex-col px-10 gap-5 h-full pt-10 w-full">
-        <section className="flex flex-wrap justify-between items-center gap-4">
+      <main className="flex flex-col px-2 md:px-10 gap-5 h-full pt-10 w-full">
+        <section className="flex flex-wrap justify-between items-center gap-4 not-md:justify-center">
           <h2 className="text-3xl font-black text-white">Measurements</h2>
 
           <div className="flex gap-2">
