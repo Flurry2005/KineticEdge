@@ -84,6 +84,7 @@ router.post(
       const userId = res.locals.jwt.userId;
 
       const {
+        date,
         barcode,
         productName,
         productBrand,
@@ -108,49 +109,51 @@ router.post(
         });
       }
 
-      const today = new Date().toISOString().split("T")[0];
+      // Validate the provided date (if any)
+      if (date && isNaN(new Date(date).getTime())) {
+        return res.status(400).json({
+          message: "Invalid date",
+        });
+      }
 
-      let foodIntake = await foodInTakeModel.findOne({
-        userId,
-      });
+      // Use the provided date or fall back to today
+      const entryDate = date
+        ? new Date(date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
 
-      // Create user's food document if it does not exist
+      let foodIntake = await foodInTakeModel.findOne({ userId });
+
+      // Create user's food document if it doesn't exist
       if (!foodIntake) {
         foodIntake = await foodInTakeModel.create({
           userId,
-
           days: [
             {
-              date: today,
-
+              date: entryDate,
               products: [],
             },
           ],
         });
       }
 
-      // Find today's entry
+      // Find the entry for the requested date
+      let dayEntry = foodIntake.days.find((day) => day.date === entryDate);
 
-      let todayEntry = foodIntake.days.find((day) => day.date === today);
-
-      // Create today if missing
-
-      if (!todayEntry) {
+      // Create the day if it doesn't exist
+      if (!dayEntry) {
         foodIntake.days.push({
-          date: today,
+          date: entryDate,
           products: [],
         });
 
-        todayEntry = foodIntake.days[foodIntake.days.length - 1];
+        dayEntry = foodIntake.days[foodIntake.days.length - 1];
       }
 
-      todayEntry.products.push({
+      // Add the product
+      dayEntry.products.push({
         barcode,
-
         productName,
-
         productBrand,
-
         productImage,
 
         quantityGrams,
@@ -168,14 +171,14 @@ router.post(
 
       await foodIntake.save();
 
-      res.status(201).json({
+      return res.status(201).json({
         message: "Product added",
         foodIntake,
       });
     } catch (error) {
       console.error("Add food product error:", error);
 
-      res.status(500).json({
+      return res.status(500).json({
         message: "Server error",
       });
     }
@@ -188,15 +191,22 @@ router.delete(
     try {
       const userId = res.locals.jwt.userId;
 
-      const { _id } = req.body;
+      const { _id, date } = req.body;
 
-      if (!_id) {
+      if (!_id || !date) {
         return res.status(400).json({
-          message: "Missing product id",
+          message: "Missing product id or date",
         });
       }
 
-      const today = new Date().toISOString().split("T")[0];
+      // Validate YYYY-MM-DD format
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+      if (!dateRegex.test(date)) {
+        return res.status(400).json({
+          message: "Invalid date format. Expected YYYY-MM-DD",
+        });
+      }
 
       const foodIntake = await foodInTakeModel.findOne({
         userId,
@@ -208,15 +218,17 @@ router.delete(
         });
       }
 
-      const todayEntry = foodIntake.days.find((day) => day.date === today);
+      // Find the requested day
+      const dayEntry = foodIntake.days.find((day) => day.date === date);
 
-      if (!todayEntry) {
+      if (!dayEntry) {
         return res.status(404).json({
-          message: "No food logged today",
+          message: "Food entry not found for this date",
         });
       }
 
-      const productIndex = todayEntry.products.findIndex(
+      // Find the product
+      const productIndex = dayEntry.products.findIndex(
         (product) => product._id.toString() === _id,
       );
 
@@ -226,7 +238,13 @@ router.delete(
         });
       }
 
-      todayEntry.products.splice(productIndex, 1);
+      // Remove the product
+      dayEntry.products.splice(productIndex, 1);
+
+      // Remove the day if there are no products left
+      if (dayEntry.products.length === 0) {
+        foodIntake.days = foodIntake.days.filter((day) => day.date !== date);
+      }
 
       await foodIntake.save();
 

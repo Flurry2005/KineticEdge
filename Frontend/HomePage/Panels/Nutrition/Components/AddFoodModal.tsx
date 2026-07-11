@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Product } from "../../../../utils/BarcodeScanner";
 
 interface AddFoodModalProps {
+  date: any;
   barcode: string;
   product: Product;
   onClose: () => void;
@@ -9,6 +10,7 @@ interface AddFoodModalProps {
 }
 
 export default function AddFoodModal({
+  date,
   barcode,
   product,
   onClose,
@@ -52,6 +54,7 @@ export default function AddFoodModal({
           },
 
           body: JSON.stringify({
+            date,
             barcode,
 
             productName: product.product_name ?? "Unknown",

@@ -18,7 +18,7 @@ export default function TodayPanel({
 }: TodayPanelProps) {
   const [showScanner, setShowScanner] = useState(false);
 
-  const handleRemoveProduct = async (_id: any) => {
+  const handleRemoveProduct = async (_id: any, date: any) => {
     const res = await fetch(
       import.meta.env.DEV
         ? "http://192.168.1.201:3000/remove-food-product"
@@ -30,6 +30,7 @@ export default function TodayPanel({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          date,
           _id,
         }),
       },
@@ -105,7 +106,9 @@ export default function TodayPanel({
               </div>
               <button
                 className="text-red-500 bg-red-500/40 px-2 py-1 rounded-xl cursor-pointer"
-                onClick={() => handleRemoveProduct(product._id)}
+                onClick={() =>
+                  handleRemoveProduct(product._id, foodIntakeToday.date)
+                }
               >
                 <Trash2 />
               </button>

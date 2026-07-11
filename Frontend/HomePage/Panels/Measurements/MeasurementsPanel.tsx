@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useWithings } from "../../../Context/useWitings.tsx";
 
 interface Measure {
   type: number;
@@ -53,19 +54,10 @@ function MeasurementsPanel() {
 
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const getData = async () => {
-    const response = await fetch(
-      import.meta.env.DEV
-        ? "http://192.168.1.201:3000/api/withings/measurements"
-        : "https://api.kineticedge.liamjorgensen.dev/api/withings/measurements",
-      {
-        credentials: "include",
-      },
-    );
+  const { measurements } = useWithings();
 
-    const json = await response.json();
-
-    const weight: WeightPoint[] = json.body.measuregrps
+  const oranizeMeasurementsData = async () => {
+    const weight: WeightPoint[] = measurements.body.measuregrps
       .map((group: MeasureGroup) => {
         const measure = group.measures.find((m) => m.type === 1);
 
@@ -80,7 +72,7 @@ function MeasurementsPanel() {
       .filter((x): x is WeightPoint => x !== null)
       .sort((a, b) => a.timestamp - b.timestamp);
 
-    const muscleMass: MuscleMassPoint[] = json.body.measuregrps
+    const muscleMass: MuscleMassPoint[] = measurements.body.measuregrps
       .map((group: MeasureGroup) => {
         const measure = group.measures.find((m) => m.type === 76);
 
@@ -97,7 +89,7 @@ function MeasurementsPanel() {
 
     setMuscleMassData(muscleMass);
 
-    const bodyFat: BodyFatPoint[] = json.body.measuregrps
+    const bodyFat: BodyFatPoint[] = measurements.body.measuregrps
       .map((group: MeasureGroup) => {
         const percent = group.measures.find((m) => m.type === 6);
         const kg = group.measures.find((m) => m.type === 8);
@@ -119,8 +111,8 @@ function MeasurementsPanel() {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
+    oranizeMeasurementsData();
+  }, [measurements]);
 
   const filterData = <T extends { timestamp: number }>(data: T[]) => {
     if (range === "all") return data;

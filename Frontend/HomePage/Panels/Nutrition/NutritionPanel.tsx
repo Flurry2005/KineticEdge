@@ -5,6 +5,8 @@ import TodayPanel from "./Components/TodayPanel";
 import type { Product } from "../../../utils/BarcodeScanner";
 import AddFoodModal from "./Components/AddFoodModal";
 import ManualFoodModal from "./Components/ManualFoodModal";
+import { useWithings } from "../../../Context/useWitings";
+import PastPanel from "./Components/PastPanel";
 export const Panel = {
   PAST: "PAST",
   TODAY: "UPCOMMING",
@@ -14,29 +16,18 @@ export const Panel = {
 export type ActivePanel = (typeof Panel)[keyof typeof Panel];
 
 function NutritionPanel() {
+  const { todaysActivity } = useWithings();
   const [activePanel, setActivePanel] = useState<ActivePanel>(Panel.TODAY);
+
   const [manualBarcode, setManualBarcode] = useState<string | null>(null);
   const [foodIntake, setFoodIntake] = useState<any | null>(null);
+
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const [selectedProduct, setSelectedProduct] = useState<{
     barcode: string;
     product: Product;
   } | null>(null);
-
-  const [activityData, setActivityData] = useState<null | any>(null);
-
-  const getActivityData = async (date: string) => {
-    const res = await fetch(
-      import.meta.env.DEV
-        ? "http://192.168.1.201:3000/api/withings/activity?date=" + date
-        : "https://api.kineticedge.liamjorgensen.dev/api/withings/activity?date=" +
-            date,
-      { credentials: "include" },
-    );
-    const data = await res.json();
-    console.log(data);
-    setActivityData(data);
-  };
 
   const fetchData = async () => {
     const response = await fetch(
@@ -67,7 +58,6 @@ function NutritionPanel() {
 
     const now = new Date();
     const todayDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    getActivityData(todayDate);
 
     return {
       today: foodIntake.days.find((day: any) => day.date === todayDate) || {},
@@ -84,12 +74,14 @@ function NutritionPanel() {
         <TodayPanel
           foodIntakeToday={today}
           onProductFound={(barcode, product) => {
+            setSelectedDate(today.date);
             setSelectedProduct({
               barcode,
               product,
             });
           }}
           onProductNotFound={(barcode) => {
+            setSelectedDate(today.date);
             setManualBarcode(barcode);
           }}
           updateFoods={fetchData}
@@ -99,7 +91,23 @@ function NutritionPanel() {
       break;
 
     case Panel.PAST:
-      activePanelElement = <p className="text-white">Past</p>;
+      activePanelElement = (
+        <PastPanel
+          foodIntakes={past}
+          onProductFound={(barcode, product, date) => {
+            setSelectedDate(date);
+            setSelectedProduct({
+              barcode,
+              product,
+            });
+          }}
+          onProductNotFound={(barcode, date) => {
+            setSelectedDate(date);
+            setManualBarcode(barcode);
+          }}
+          updateFoods={fetchData}
+        />
+      );
 
       break;
 
@@ -108,12 +116,14 @@ function NutritionPanel() {
         <TodayPanel
           foodIntakeToday={today}
           onProductFound={(barcode, product) => {
+            setSelectedDate(today.date);
             setSelectedProduct({
               barcode,
               product,
             });
           }}
           onProductNotFound={(barcode) => {
+            setSelectedDate(today.date);
             setManualBarcode(barcode);
           }}
           updateFoods={fetchData}
@@ -148,9 +158,10 @@ function NutritionPanel() {
                   <h2 className="text-[#ADAAAA] text-xs">EXPENDITURE</h2>
 
                   <p className="text-[#F3FFCA] font-black text-sm">
-                    {activityData === null
+                    {todaysActivity === undefined
                       ? "Loading..."
-                      : activityData!.totalCalories!.toFixed(0) + " KCAL"}{" "}
+                      : todaysActivity!.totalCalories!.toFixed(0) +
+                        " KCAL"}{" "}
                   </p>
                 </article>
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
@@ -169,9 +180,9 @@ function NutritionPanel() {
                 </article>
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
                   <h2 className="text-[#ADAAAA] text-xs">
-                    {activityData === null
+                    {todaysActivity === undefined
                       ? "Loading..."
-                      : activityData!.totalCalories! -
+                      : todaysActivity!.totalCalories! -
                             (today?.products
                               ?.reduce(
                                 (sum: number, item: any) => sum + item.calories,
@@ -184,10 +195,10 @@ function NutritionPanel() {
                   </h2>
 
                   <p className="text-[#F3FFCA] font-black text-sm">
-                    {activityData === null
+                    {todaysActivity === undefined
                       ? "Loading..."
                       : Math.abs(
-                          activityData!.totalCalories! -
+                          todaysActivity!.totalCalories! -
                             (today?.products?.reduce(
                               (sum: number, item: any) => sum + item.calories,
                               0,
@@ -280,6 +291,7 @@ function NutritionPanel() {
 
         {selectedProduct && (
           <AddFoodModal
+            date={selectedDate}
             barcode={selectedProduct.barcode}
             product={selectedProduct.product}
             onClose={() => setSelectedProduct(null)}
@@ -292,6 +304,7 @@ function NutritionPanel() {
         )}
         {manualBarcode && (
           <ManualFoodModal
+            date={selectedDate}
             barcode={manualBarcode}
             onClose={() => setManualBarcode(null)}
             onAdded={async () => {

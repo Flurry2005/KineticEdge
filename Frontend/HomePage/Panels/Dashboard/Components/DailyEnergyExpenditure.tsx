@@ -1,27 +1,8 @@
 import { Footprints, Road, WavesVertical } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useWithings } from "../../../../Context/useWitings";
 
 function DailyEnergyExpenditure() {
-  const [activityData, setActivityData] = useState<null | any>(null);
-
-  const getData = async () => {
-    const now = new Date();
-    const todayDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    const res = await fetch(
-      import.meta.env.DEV
-        ? "http://192.168.1.201:3000/api/withings/activity?date=" + todayDate
-        : "https://api.kineticedge.liamjorgensen.dev/api/withings/activity?date=" +
-            todayDate,
-      { credentials: "include" },
-    );
-    const data = await res.json();
-    console.log(data);
-    setActivityData(data);
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
+  const { todaysActivity } = useWithings();
 
   return (
     <article className="bg-[#131313] lg:w-80 h-60 rounded-3xl relative overflow-hidden px-5 flex justify-around flex-col py-5">
@@ -38,14 +19,17 @@ function DailyEnergyExpenditure() {
       <div className="flex justify-between">
         <p className="text-[#ADAAAA] flex items-center gap-3">
           Calories Burned{" "}
-          {activityData === null ? "Loading..." : activityData!.activeCalories!}{" "}
+          {todaysActivity === undefined
+            ? "Loading..."
+            : todaysActivity!.activeCalories!}{" "}
           <WavesVertical className="text-orange-400 w-4 h-4" />
         </p>
         <p className="text-white"></p>
       </div>
       <div className="flex justify-between">
         <p className="text-[#ADAAAA] flex gap-3 items-center">
-          Steps {activityData === null ? "Loading..." : activityData!.steps!}
+          Steps{" "}
+          {todaysActivity === undefined ? "Loading..." : todaysActivity!.steps!}
           <Footprints className="text-[#d1be0f]" />
         </p>
         <p className="text-[#FF7441]"></p>
@@ -53,9 +37,9 @@ function DailyEnergyExpenditure() {
       <div className="flex justify-between">
         <p className="text-[#ADAAAA] flex gap-3 items-center">
           Distance{" "}
-          {activityData === null
+          {todaysActivity === undefined
             ? "Loading..."
-            : (activityData!.distance! / 1000).toFixed(2)}{" "}
+            : (todaysActivity!.distance! / 1000).toFixed(2)}{" "}
           KM
           <Road className="text-[#b11c23]" />
         </p>
@@ -64,7 +48,9 @@ function DailyEnergyExpenditure() {
       <div className="flex justify-between">
         <p className="text-[#ADAAAA]">
           TOTAL CALORIES{" "}
-          {activityData === null ? "Loading..." : activityData!.totalCalories!}
+          {todaysActivity === undefined
+            ? "Loading..."
+            : todaysActivity!.totalCalories!}
         </p>
         <p className="text-[#FF7441]"></p>
       </div>

@@ -1,12 +1,14 @@
 import { useState } from "react";
 
 interface ManualFoodModalProps {
+  date: any;
   barcode: string;
   onClose: () => void;
   onAdded: () => void;
 }
 
 export default function ManualFoodModal({
+  date,
   barcode,
   onClose,
   onAdded,
@@ -82,6 +84,7 @@ export default function ManualFoodModal({
           },
 
           body: JSON.stringify({
+            date,
             barcode,
 
             productName: form.productName || "Unknown",

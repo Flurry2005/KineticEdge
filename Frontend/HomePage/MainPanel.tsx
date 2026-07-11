@@ -11,9 +11,18 @@ import { WorkoutProvider } from "../Context/useWorkouts";
 import { useParams } from "react-router-dom";
 import { ExerciceProvider } from "../Context/useExercices";
 import SettingsPanel from "./Panels/Settings/SettingsPanel";
-import { Apple, BicepsFlexed, Settings as SettingsIcon } from "lucide-react";
+import {
+  Apple,
+  BicepsFlexed,
+  Dumbbell,
+  House,
+  LayoutDashboard,
+  Settings as SettingsIcon,
+  UserPen,
+} from "lucide-react";
 import MeasurementsPanel from "./Panels/Measurements/MeasurementsPanel";
 import NutritionPanel from "./Panels/Nutrition/NutritionPanel";
+import { WithingsProvider } from "../Context/useWitings";
 
 export const Panel = {
   HOME: "HOME",
@@ -59,7 +68,9 @@ function MainPanel({ panel }: Props) {
         setActivePanelElement(
           <WorkoutProvider>
             <SessionProvider>
-              <DashboardPanel />
+              <WithingsProvider>
+                <DashboardPanel />
+              </WithingsProvider>
             </SessionProvider>
           </WorkoutProvider>,
         );
@@ -80,41 +91,22 @@ function MainPanel({ panel }: Props) {
       }
       case Panel.MEASUREMENTS: {
         setActivePanelElement(
-          <ExerciceProvider>
-            <WorkoutProvider>
-              <SessionProvider>
-                <MeasurementsPanel />
-              </SessionProvider>
-            </WorkoutProvider>
-            ,
-          </ExerciceProvider>,
+          <WithingsProvider>
+            <MeasurementsPanel />
+          </WithingsProvider>,
         );
         break;
       }
       case Panel.NUTRITION: {
         setActivePanelElement(
-          <ExerciceProvider>
-            <WorkoutProvider>
-              <SessionProvider>
-                <NutritionPanel />
-              </SessionProvider>
-            </WorkoutProvider>
-            ,
-          </ExerciceProvider>,
+          <WithingsProvider>
+            <NutritionPanel />
+          </WithingsProvider>,
         );
         break;
       }
       case Panel.SETTINGS: {
-        setActivePanelElement(
-          <ExerciceProvider>
-            <WorkoutProvider>
-              <SessionProvider>
-                <SettingsPanel />
-              </SessionProvider>
-            </WorkoutProvider>
-            ,
-          </ExerciceProvider>,
-        );
+        setActivePanelElement(<SettingsPanel />);
         break;
       }
       default: {
@@ -138,21 +130,7 @@ function MainPanel({ panel }: Props) {
                 onClick={() => setActivePanel(Panel.HOME)}
                 className={`w-full h-10 flex px-2 gap-2 items-center ${activePanel === Panel.HOME ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
               >
-                <div
-                  className={`h-4 w-4 ${
-                    activePanel === Panel.HOME ? "bg-[#CCFF00]" : "bg-gray-400"
-                  }`}
-                  style={{
-                    WebkitMaskImage: "url(/dashboardIcon.png)",
-                    maskImage: "url(/dashboardIcon.png)",
-                    WebkitMaskRepeat: "no-repeat",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskSize: "contain",
-                    maskSize: "contain",
-                    WebkitMaskPosition: "center",
-                    maskPosition: "center",
-                  }}
-                />
+                <House />
                 Home
               </Link>
             ) : (
@@ -162,23 +140,7 @@ function MainPanel({ panel }: Props) {
                   onClick={() => setActivePanel(Panel.DASHBOARD)}
                   className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.DASHBOARD ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
                 >
-                  <div
-                    className={`h-4 w-4 ${
-                      activePanel === Panel.DASHBOARD
-                        ? "bg-[#CCFF00]"
-                        : "bg-gray-400"
-                    }`}
-                    style={{
-                      WebkitMaskImage: "url(/dashboardIcon.png)",
-                      maskImage: "url(/dashboardIcon.png)",
-                      WebkitMaskRepeat: "no-repeat",
-                      maskRepeat: "no-repeat",
-                      WebkitMaskSize: "contain",
-                      maskSize: "contain",
-                      WebkitMaskPosition: "center",
-                      maskPosition: "center",
-                    }}
-                  />
+                  <LayoutDashboard />
                   Dashboard
                 </Link>
                 <Link
@@ -186,23 +148,7 @@ function MainPanel({ panel }: Props) {
                   onClick={() => setActivePanel(Panel.WORKOUTS)}
                   className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.WORKOUTS ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
                 >
-                  <div
-                    className={`h-4 w-4 ${
-                      activePanel === Panel.WORKOUTS
-                        ? "bg-[#CCFF00]"
-                        : "bg-gray-400"
-                    }`}
-                    style={{
-                      WebkitMaskImage: "url(/workoutsIcon.png)",
-                      maskImage: "url(/workoutsIcon.png)",
-                      WebkitMaskRepeat: "no-repeat",
-                      maskRepeat: "no-repeat",
-                      WebkitMaskSize: "contain",
-                      maskSize: "contain",
-                      WebkitMaskPosition: "center",
-                      maskPosition: "center",
-                    }}
-                  />
+                  <Dumbbell />
                   Workouts
                 </Link>
                 <Link
@@ -212,7 +158,7 @@ function MainPanel({ panel }: Props) {
                   }}
                   className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.NUTRITION ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
                 >
-                  <Apple></Apple>
+                  <Apple />
                   Nutrition
                 </Link>
                 <Link
@@ -222,7 +168,7 @@ function MainPanel({ panel }: Props) {
                   }}
                   className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.MEASUREMENTS ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
                 >
-                  <BicepsFlexed></BicepsFlexed>
+                  <BicepsFlexed />
                   Measurements
                 </Link>
                 <Link
@@ -232,23 +178,7 @@ function MainPanel({ panel }: Props) {
                   }}
                   className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.PROFILE ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
                 >
-                  <div
-                    className={`h-4 w-4 ${
-                      activePanel === Panel.PROFILE
-                        ? "bg-[#CCFF00]"
-                        : "bg-gray-400"
-                    }`}
-                    style={{
-                      WebkitMaskImage: "url(/profileIcon.png)",
-                      maskImage: "url(/profileIcon.png)",
-                      WebkitMaskRepeat: "no-repeat",
-                      maskRepeat: "no-repeat",
-                      WebkitMaskSize: "contain",
-                      maskSize: "contain",
-                      WebkitMaskPosition: "center",
-                      maskPosition: "center",
-                    }}
-                  />
+                  <UserPen />
                   Profile
                 </Link>
 
@@ -259,7 +189,7 @@ function MainPanel({ panel }: Props) {
                   }}
                   className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.SETTINGS ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
                 >
-                  <SettingsIcon></SettingsIcon>
+                  <SettingsIcon />
                   Settings
                 </Link>
               </>

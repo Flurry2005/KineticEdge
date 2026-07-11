@@ -165,7 +165,7 @@ function LoginPage() {
               <GlowingButton
                 outline={false}
                 onClick={() => {}}
-                additionalClasses="w-full h-10 !text-[#516700] !font-extrabold"
+                additionalClasses="w-full h-10 !text-[#516700] !font-extrabold cursor-pointer"
               >
                 {loginMode ? "LOGIN" : "REGISTER"}
               </GlowingButton>
