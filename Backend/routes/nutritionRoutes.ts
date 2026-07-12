@@ -1,8 +1,9 @@
 import express from "express";
 import { jwtMiddleware } from "../middleware/jwtMiddleware.js";
 import foodInTakeModel from "../models/foodInTakeModel.js";
-import FoodDBCache from "../models/FoodDBCache.js";
+import FoodDBCache, { foodDBCache } from "../models/FoodDBCache.js";
 import { Types } from "mongoose";
+import customEan from "../models/customEan.js";
 
 export const router = express.Router();
 
@@ -23,50 +24,16 @@ router.get("/barcode", jwtMiddleware.jwtTokenIsValid, async (req, res) => {
       await FoodDBCache.insertOne({ barcode, data });
       return res.status(200).json(data);
     } else {
-      const previousProduct = await foodInTakeModel.aggregate([
-        {
-          $match: {
-            userId: new Types.ObjectId(res.locals.jwt.userId),
-          },
-        },
-        {
-          $unwind: "$days",
-        },
-        {
-          $unwind: "$days.products",
-        },
-        {
-          $match: {
-            "days.products.barcode": barcode,
-          },
-        },
-        {
-          $replaceRoot: {
-            newRoot: "$days.products",
-          },
-        },
-        {
-          $limit: 1,
-        },
-      ]);
-      console.log(previousProduct);
-      const product = previousProduct[0] ?? null;
+      const userDefinedProduct = await customEan.findOne({
+        userId: res.locals.jwt.userId,
+        barcode: barcode,
+      });
+      const product = userDefinedProduct
+        ? userDefinedProduct.toObject().data
+        : null;
 
       if (product) {
-        const response = {
-          status: "success",
-          product: {
-            product_name: product.productName,
-            brands: product.productBrand,
-            image_front_url: product.productImage,
-            nutriments: {
-              "energy-kcal_100g": product.caloriesPer100g,
-              carbohydrates_100g: product.carbohydratesPer100g,
-              fat_100g: product.fatsPer100g,
-              proteins_100g: product.proteinPer100g,
-            },
-          },
-        };
+        const response = { ...product };
 
         return res.status(200).json(response);
       }
@@ -168,6 +135,34 @@ router.post(
         fatsGrams,
         proteinGrams,
       });
+
+      //See if barcode exists in cache => if doesnt, barcode dont exist add as customEan for user
+      if (
+        !(await FoodDBCache.findOne({ barcode: barcode })) &&
+        !(await customEan.findOne({
+          userId: res.locals.jwt.userId,
+          barcode: barcode,
+        }))
+      ) {
+        await customEan.insertOne({
+          userId: res.locals.jwt.userId,
+          barcode: barcode,
+          data: {
+            status: "success",
+            product: {
+              product_name: productName,
+              brands: productBrand,
+              image_front_url: productImage,
+              nutriments: {
+                "energy-kcal_100g": caloriesPer100g,
+                carbohydrates_100g: carbohydratesPer100g,
+                fat_100g: fatsPer100g,
+                proteins_100g: proteinPer100g,
+              },
+            },
+          },
+        });
+      }
 
       await foodIntake.save();
 
