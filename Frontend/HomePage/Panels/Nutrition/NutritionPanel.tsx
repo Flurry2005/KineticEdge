@@ -60,7 +60,9 @@ function NutritionPanel() {
     const todayDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
     return {
-      today: foodIntake.days.find((day: any) => day.date === todayDate) || {},
+      today: foodIntake.days.find((day: any) => day.date === todayDate) || {
+        date: todayDate,
+      },
 
       past: foodIntake.days.filter((day: any) => day.date !== todayDate),
     };
