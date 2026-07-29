@@ -38,7 +38,10 @@ function NutritionPanel() {
         credentials: "include",
       },
     );
-
+    if (!response.ok) {
+      console.error("Error fetching data");
+      return;
+    }
     const data = await response.json();
 
     setFoodIntake(data);
@@ -162,8 +165,10 @@ function NutritionPanel() {
                   <p className="text-[#F3FFCA] font-black text-sm">
                     {todaysActivity === undefined
                       ? "Loading..."
-                      : todaysActivity!.totalCalories!.toFixed(0) +
-                        " KCAL"}{" "}
+                      : todaysActivity.status === 601
+                        ? "Wait..."
+                        : todaysActivity!.totalCalories!.toFixed(0) +
+                          " KCAL"}{" "}
                   </p>
                 </article>
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">

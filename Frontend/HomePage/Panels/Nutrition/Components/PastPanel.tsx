@@ -2,6 +2,8 @@ import { useState } from "react";
 import BarcodeScanner from "../../../../utils/BarcodeScanner";
 import type { Product } from "../../../../utils/BarcodeScanner";
 import { ChevronDown, Trash2 } from "lucide-react";
+import AddProductMethodSelection from "./AddProductMethodSelection";
+import RecentProductsSelection from "./RecentProductsSelection";
 
 interface PastPanelProps {
   foodIntakes: any;
@@ -19,6 +21,9 @@ export default function PastPanel({
   const [showScanner, setShowScanner] = useState(false);
   const [selectedDayDate, setSelectedDayDate] = useState<any | null>(null);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
+  const [showAddProductMethodSelection, setShowAddProductMethodSelection] =
+    useState(false);
+  const [showRecentProducts, setShowRecentProducts] = useState(false);
 
   const toggleDay = (date: string) => {
     setExpandedDays((prev) => {
@@ -68,138 +73,159 @@ export default function PastPanel({
   return (
     <div className="space-y-4 mb-5">
       {foodIntakes?.length ? (
-        foodIntakes.map((day: any, dayIndex: number) => {
-          if (!day.products?.length) return null;
+        [...foodIntakes]
+          .sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          )
+          .map((day: any, dayIndex: number) => {
+            if (!day.products?.length) return null;
 
-          const isExpanded = expandedDays.has(day.date);
-          const totals = getDayTotals(day.products);
+            const isExpanded = expandedDays.has(day.date);
+            const totals = getDayTotals(day.products);
 
-          return (
-            <div
-              key={day._id ?? dayIndex}
-              className="overflow-hidden rounded-lg bg-neutral-800"
-            >
-              {/* Card header / summary — click to expand */}
-              <button
-                onClick={() => toggleDay(day.date)}
-                className="flex w-full cursor-pointer items-center justify-between gap-4 p-4 text-left"
+            return (
+              <div
+                key={day._id ?? dayIndex}
+                className="overflow-hidden rounded-lg bg-neutral-800"
               >
-                <div className="flex items-center gap-4">
-                  <ChevronDown
-                    className={`h-5 w-5 shrink-0 text-gray-400 transition-transform ${
-                      isExpanded ? "rotate-180" : ""
-                    }`}
-                  />
-                  <div>
-                    <h2 className="text-xl font-bold text-white">{day.date}</h2>
-                    <p className="text-sm text-gray-400">
-                      {day.products.length} product
-                      {day.products.length !== 1 ? "s" : ""}
-                    </p>
+                {/* Card header / summary — click to expand */}
+                <button
+                  onClick={() => toggleDay(day.date)}
+                  className="flex w-full cursor-pointer items-center justify-between gap-4 p-4 text-left"
+                >
+                  <div className="flex items-center gap-4">
+                    <ChevronDown
+                      className={`h-5 w-5 shrink-0 text-gray-400 transition-transform ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                    />
+                    <div>
+                      <h2 className="text-xl font-bold text-white">
+                        {day.date}
+                      </h2>
+                      <p className="text-sm text-gray-400">
+                        {day.products.length} product
+                        {day.products.length !== 1 ? "s" : ""}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex gap-5 text-right">
-                  <div>
-                    <p className="text-sm font-medium text-white">
-                      {totals.calories.toFixed(0)} kcal
-                    </p>
+                  <div className="flex gap-5 text-right">
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        {totals.calories.toFixed(0)} kcal
+                      </p>
+                    </div>
+                    <div className="hidden gap-5 sm:flex">
+                      <p className="text-sm text-gray-400">
+                        Carbs: {totals.carbs.toFixed(0)}g
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Fat: {totals.fat.toFixed(0)}g
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Protein: {totals.protein.toFixed(0)}g
+                      </p>
+                    </div>
                   </div>
-                  <div className="hidden gap-5 sm:flex">
-                    <p className="text-sm text-gray-400">
-                      Carbs: {totals.carbs.toFixed(0)}g
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      Fat: {totals.fat.toFixed(0)}g
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      Protein: {totals.protein.toFixed(0)}g
-                    </p>
-                  </div>
-                </div>
-              </button>
+                </button>
 
-              {/* Expanded product list */}
-              {isExpanded && (
-                <div className="space-y-3 border-t border-neutral-700 p-4">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedDayDate(day.date);
-                      setShowScanner(true);
-                    }}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 cursor-pointer"
-                  >
-                    Add product
-                  </button>
-
-                  {day.products.map((product: any, index: number) => (
-                    <div
-                      key={product._id ?? index}
-                      className="flex items-center gap-4 rounded-lg bg-neutral-900 p-4"
+                {/* Expanded product list */}
+                {isExpanded && (
+                  <div className="space-y-3 border-t border-neutral-700 p-4">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDayDate(day.date);
+                        setShowAddProductMethodSelection(true);
+                      }}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 cursor-pointer"
                     >
-                      {product.productImage && (
-                        <img
-                          src={product.productImage}
-                          alt={product.productName}
-                          className="h-16 w-16 rounded object-cover"
-                        />
-                      )}
+                      Add product
+                    </button>
 
-                      <div>
-                        <h3 className="font-semibold text-white">
-                          {product.productName}
-                        </h3>
+                    {day.products.map((product: any, index: number) => (
+                      <div
+                        key={product._id ?? index}
+                        className="flex items-center gap-4 rounded-lg bg-neutral-900 p-4"
+                      >
+                        {product.productImage && (
+                          <img
+                            src={product.productImage}
+                            alt={product.productName}
+                            className="h-16 w-16 rounded object-cover"
+                          />
+                        )}
 
-                        <div className="flex gap-5">
-                          <div>
-                            {product.productBrand && (
+                        <div>
+                          <h3 className="font-semibold text-white">
+                            {product.productName}
+                          </h3>
+
+                          <div className="flex gap-5">
+                            <div>
+                              {product.productBrand && (
+                                <p className="text-sm text-gray-400">
+                                  {product.productBrand}
+                                </p>
+                              )}
                               <p className="text-sm text-gray-400">
-                                {product.productBrand}
+                                {product.quantityGrams} g
                               </p>
-                            )}
-                            <p className="text-sm text-gray-400">
-                              {product.quantityGrams} g
-                            </p>
-                            <p className="text-sm text-gray-400">
-                              {product.calories.toFixed(0)} kcal
-                            </p>
-                          </div>
-
-                          <div>
-                            {product.carbohydratesGrams >= 0 && (
                               <p className="text-sm text-gray-400">
-                                Carbs: {product.carbohydratesGrams} g
+                                {product.calories.toFixed(0)} kcal
                               </p>
-                            )}
-                            <p className="text-sm text-gray-400">
-                              Fat: {product.fatsGrams} g
-                            </p>
-                            <p className="text-sm text-gray-400">
-                              Protein: {product.proteinGrams} g
-                            </p>
+                            </div>
+
+                            <div>
+                              {product.carbohydratesGrams >= 0 && (
+                                <p className="text-sm text-gray-400">
+                                  Carbs: {product.carbohydratesGrams} g
+                                </p>
+                              )}
+                              <p className="text-sm text-gray-400">
+                                Fat: {product.fatsGrams} g
+                              </p>
+                              <p className="text-sm text-gray-400">
+                                Protein: {product.proteinGrams} g
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <button
-                        className="ml-auto rounded-xl bg-red-500/40 px-2 py-1 text-red-500 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveProduct(product._id, day.date);
-                        }}
-                      >
-                        <Trash2 />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })
+                        <button
+                          className="ml-auto rounded-xl bg-red-500/40 px-2 py-1 text-red-500 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveProduct(product._id, day.date);
+                          }}
+                        >
+                          <Trash2 />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })
       ) : (
         <p className="text-gray-400">No past.</p>
+      )}
+      {showAddProductMethodSelection && (
+        <AddProductMethodSelection
+          setShowRecentProducts={setShowRecentProducts}
+          setShowMethodSelection={setShowAddProductMethodSelection}
+          setShowScanner={setShowScanner}
+        ></AddProductMethodSelection>
+      )}
+      {showRecentProducts && (
+        <RecentProductsSelection
+          onClose={() => setShowRecentProducts(false)}
+          onSelect={(barcode: any, product: any) =>
+            onProductFound(barcode, product, selectedDayDate)
+          }
+        ></RecentProductsSelection>
       )}
       {showScanner && (
         <BarcodeScanner

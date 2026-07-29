@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import type { Workout } from "../../../../types/Workout";
 import GlowingButton from "../../../../Components/General/GlowingButton";
-import InputField from "../../../../Components/General/InputField";
 import { addSession } from "../Scripts/AddSession";
 import { useSessions } from "../../../../Context/useSessions";
 
@@ -10,28 +9,41 @@ interface Props {
   workouts: Workout[];
 }
 
-type DateType = {
-  dd: string;
-  mm: string;
-  year: string;
-};
-
 function WorkoutSelector({ closeSelector, workouts }: Props) {
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-[#131313] p-6 h-9/10 w-9/10 md:w-6/10 md:h-8/10 rounded-xl relative overflow-scroll overflow-x-hidden">
-        <button
-          onClick={closeSelector}
-          className="absolute top-2 right-2 text-white cursor-pointer"
-        >
-          ✕
-        </button>
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+      <div
+        className="
+          bg-[#131313]
+          w-full
+          max-w-3xl
+          max-h-[85vh]
+          rounded-3xl
+          p-6
+          overflow-y-auto
+          shadow-2xl
+        "
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-white text-3xl font-black tracking-tight">
+            YOUR WORKOUTS
+          </h2>
 
-        <div className="text-white text-2xl font-black tracking-tighter">
-          YOUR WORKOUTS
+          <button
+            onClick={closeSelector}
+            className="
+              text-white/50
+              hover:text-white
+              text-xl
+              transition
+              cursor-pointer
+            "
+          >
+            ✕
+          </button>
         </div>
 
-        <section className="flex flex-col gap-5 py-2">
+        <section className="flex flex-col gap-4">
           {workouts.map((workout) => (
             <WorkoutCard
               key={workout._id ?? workout.workoutName}
@@ -54,90 +66,88 @@ function WorkoutCard({
   workout: Workout;
   closeSelector: () => void;
 }) {
-  const [date, setDate] = useState<DateType>({
-    dd: "",
-    mm: "",
-    year: "",
-  });
-
   const { updateSessions } = useSessions();
 
-  return (
-    <article className="w-full h-fit bg-[#1A1A1A] rounded-2xl p-5">
-      <p className="text-white font-black text-4xl">{workout.workoutName}</p>
+  const today = new Date().toISOString().split("T")[0];
 
-      <div className="flex flex-wrap gap-2 mt-2">
-        {workout.tags.map((tag: string) => (
+  const [date, setDate] = useState(today);
+
+  async function handleAdd() {
+    const selectedDate = new Date(date);
+
+    if (isNaN(selectedDate.getTime())) return;
+
+    await addSession(workout._id, selectedDate);
+
+    updateSessions();
+
+    closeSelector();
+  }
+
+  return (
+    <article
+      className="
+        bg-[#1A1A1A]
+        rounded-3xl
+        p-5
+        transition
+        hover:bg-[#202020]
+      "
+    >
+      <h3 className="text-white text-3xl font-black">{workout.workoutName}</h3>
+
+      <div className="flex flex-wrap gap-2 mt-3">
+        {workout.tags.map((tag) => (
           <span
             key={tag}
-            className="px-3 py-1 text-xs bg-[#131313] text-white rounded-3xl"
+            className="
+              bg-[#131313]
+              text-white/70
+              px-3
+              py-1
+              text-xs
+              rounded-full
+            "
           >
             {tag}
           </span>
         ))}
       </div>
 
-      <InputField
-        placeholder="DD"
-        type="number"
-        id="day"
-        name="day"
-        value={date.dd}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setDate((prev: DateType) => ({
-            ...prev,
-            dd: e.target.value,
-          }));
-        }}
-        required={true}
-        additionalClasses="bg-[#131313] rounded! border-0 h-10 w-17 placeholder:text-[#ADAAAA]/60 placeholder:text-xs text-white text-xs"
-      />
-      <InputField
-        placeholder="MM"
-        type="number"
-        id="mm"
-        name="mm"
-        value={date.mm}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setDate((prev: DateType) => ({
-            ...prev,
-            mm: e.target.value,
-          }));
-        }}
-        required={true}
-        additionalClasses="bg-[#131313] rounded! border-0 h-10 w-17 placeholder:text-[#ADAAAA]/60 placeholder:text-xs text-white text-xs"
-      />
-      <InputField
-        placeholder="YYYY"
-        type="number"
-        id="year"
-        name="year"
-        value={date.year}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setDate((prev: DateType) => ({
-            ...prev,
-            year: e.target.value,
-          }));
-        }}
-        required={true}
-        additionalClasses="bg-[#131313] rounded! border-0 h-10 w-20 placeholder:text-[#ADAAAA]/60 placeholder:text-xs text-white text-xs"
-      />
+      <div className="flex items-center gap-4 mt-6">
+        <label className="text-white/60 text-sm">Workout date</label>
 
-      <GlowingButton
-        outline={false}
-        onClick={async () => {
-          await addSession(
-            workout._id,
-            new Date(Number(date.year), Number(date.mm) - 1, Number(date.dd)),
-          );
-          updateSessions();
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="
+            bg-[#131313]
+            text-white
+            rounded-xl
+            px-4
+            py-2
+            outline-none
+            border
+            border-white/10
+            focus:border-white/30
+            cursor-pointer
+          "
+        />
+      </div>
 
-          closeSelector();
-        }}
-        additionalClasses="text-black!"
-      >
-        ADD
-      </GlowingButton>
+      <div className="mt-6">
+        <GlowingButton
+          outline={false}
+          onClick={handleAdd}
+          additionalClasses="
+            text-black!
+            w-full
+          "
+        >
+          ADD SESSION
+        </GlowingButton>
+      </div>
     </article>
   );
 }

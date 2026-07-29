@@ -18,7 +18,7 @@ export default function AddFoodModal({
 }: AddFoodModalProps) {
   const [quantityGramsInput, setQuantityGramsInput] = useState("100");
   const [loading, setLoading] = useState(false);
-
+  console.log(product);
   const quantityGrams = Number(quantityGramsInput) || 0;
 
   const caloriesPer100g = Number(product.nutriments?.["energy-kcal_100g"]) || 0;

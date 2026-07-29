@@ -2,6 +2,8 @@ import { useState } from "react";
 import BarcodeScanner from "../../../../utils/BarcodeScanner";
 import type { Product } from "../../../../utils/BarcodeScanner";
 import { Trash2 } from "lucide-react";
+import AddProductMethodSelection from "./AddProductMethodSelection";
+import RecentProductsSelection from "./RecentProductsSelection";
 
 interface TodayPanelProps {
   foodIntakeToday: any;
@@ -17,6 +19,9 @@ export default function TodayPanel({
   updateFoods,
 }: TodayPanelProps) {
   const [showScanner, setShowScanner] = useState(false);
+  const [showAddProductMethodSelection, setShowAddProductMethodSelection] =
+    useState(false);
+  const [showRecentProducts, setShowRecentProducts] = useState(false);
 
   const handleRemoveProduct = async (_id: any, date: any) => {
     const res = await fetch(
@@ -41,12 +46,12 @@ export default function TodayPanel({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-5">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-white">Today's Food</h2>
 
         <button
-          onClick={() => setShowScanner(true)}
+          onClick={() => setShowAddProductMethodSelection(true)}
           className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 cursor-pointer"
         >
           Add product
@@ -119,17 +124,35 @@ export default function TodayPanel({
         <p className="text-gray-400">No products added today.</p>
       )}
 
+      {showAddProductMethodSelection && (
+        <AddProductMethodSelection
+          setShowRecentProducts={setShowRecentProducts}
+          setShowMethodSelection={setShowAddProductMethodSelection}
+          setShowScanner={setShowScanner}
+        ></AddProductMethodSelection>
+      )}
+      {showRecentProducts && (
+        <RecentProductsSelection
+          onClose={() => setShowRecentProducts(false)}
+          onSelect={(barcode: any, product: any) =>
+            onProductFound(barcode, product)
+          }
+        ></RecentProductsSelection>
+      )}
       {showScanner && (
         <BarcodeScanner
-          onClose={() => setShowScanner(false)}
+          onClose={() => {
+            setShowScanner(false);
+            setShowAddProductMethodSelection(false);
+          }}
           onProductFound={(barcode, product) => {
             setShowScanner(false);
-
+            setShowAddProductMethodSelection(false);
             onProductFound(barcode, product);
           }}
           onProductNotFound={(barcode) => {
             setShowScanner(false);
-
+            setShowAddProductMethodSelection(false);
             onProductNotFound(barcode);
           }}
         />

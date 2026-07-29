@@ -1,51 +1,70 @@
 import express from "express";
 import { jwtMiddleware } from "../middleware/jwtMiddleware.js";
 import foodInTakeModel from "../models/foodInTakeModel.js";
-import FoodDBCache, { foodDBCache } from "../models/FoodDBCache.js";
-import { Types } from "mongoose";
+import FoodDBCache from "../models/FoodDBCache.js";
+import {
+  barcodeLimiter,
+  addFoodLimiter,
+  readLimiter,
+  attachUserId,
+} from "../middleware/rateLimiter.js";
 import customEan from "../models/customEan.js";
 
 export const router = express.Router();
 
-router.get("/barcode", jwtMiddleware.jwtTokenIsValid, async (req, res) => {
-  const barcode = Number(req.query.barcode);
+router.get(
+  "/barcode",
+  jwtMiddleware.jwtTokenIsValid,
+  attachUserId,
+  barcodeLimiter,
+  async (req, res) => {
+    const barcode = Number(req.query.barcode);
 
-  const foodData = await FoodDBCache.findOne({ barcode: barcode });
-
-  if (foodData) return res.status(200).json(foodData.data);
-  else {
-    console.log("Barcode not found in cache, fetching...");
-    const response = await fetch(
-      `https://world.openfoodfacts.org/api/v3/product/${barcode}?fields=product_name,nutriments,brands,image_front_url`,
-    );
-
-    const data = await response.json();
-    if (data.status === "success") {
-      await FoodDBCache.insertOne({ barcode, data });
-      return res.status(200).json(data);
-    } else {
-      const userDefinedProduct = await customEan.findOne({
-        userId: res.locals.jwt.userId,
-        barcode: barcode,
+    if (!Number.isSafeInteger(barcode)) {
+      return res.status(400).json({
+        message: "Invalid barcode",
       });
-      const product = userDefinedProduct
-        ? userDefinedProduct.toObject().data
-        : null;
-
-      if (product) {
-        const response = { ...product };
-
-        return res.status(200).json(response);
-      }
-
-      return res.status(404).json(data);
     }
-  }
-});
+
+    const foodData = await FoodDBCache.findOne({ barcode: barcode });
+
+    if (foodData) return res.status(200).json(foodData.data);
+    else {
+      console.log("Barcode not found in cache, fetching...");
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v3/product/${barcode}?fields=product_name,nutriments,brands,image_front_url`,
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        await FoodDBCache.insertOne({ barcode, data });
+        return res.status(200).json(data);
+      } else {
+        const userDefinedProduct = await customEan.findOne({
+          userId: res.locals.jwt.userId,
+          barcode: barcode,
+        });
+        const product = userDefinedProduct
+          ? userDefinedProduct.toObject().data
+          : null;
+
+        if (product) {
+          const response = { ...product };
+
+          return res.status(200).json(response);
+        }
+
+        return res.status(404).json(data);
+      }
+    }
+  },
+);
 
 router.post(
   "/add-food-product",
   jwtMiddleware.jwtTokenIsValid,
+  attachUserId,
+  addFoodLimiter,
   async (req, res) => {
     try {
       const userId = res.locals.jwt.userId;
@@ -259,7 +278,10 @@ router.delete(
 
 router.get(
   "/get-all-foodIntake",
+
   jwtMiddleware.jwtTokenIsValid,
+  attachUserId,
+  readLimiter,
   async (req, res) => {
     try {
       const userId = res.locals.jwt.userId;
@@ -280,6 +302,85 @@ router.get(
       console.error("Get food intake error:", error);
 
       res.status(500).json({
+        message: "Server error",
+      });
+    }
+  },
+);
+
+router.get(
+  "/get-recent-products",
+  jwtMiddleware.jwtTokenIsValid,
+  attachUserId,
+  readLimiter,
+  async (req, res) => {
+    try {
+      const userId = res.locals.jwt.userId;
+
+      const foodIntake = await foodInTakeModel.findOne({ userId });
+
+      if (!foodIntake) {
+        return res.status(200).json([]);
+      }
+
+      const uniqueBarcodes = new Set<number>();
+
+      const sortedDays = [...foodIntake.days].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      );
+
+      const recentProducts = [];
+
+      for (const day of sortedDays) {
+        for (let i = day.products.length - 1; i >= 0; i--) {
+          const product = day.products[i];
+
+          if (uniqueBarcodes.has(product.barcode)) continue;
+
+          uniqueBarcodes.add(product.barcode);
+
+          // Try FoodDBCache first
+          let cachedProduct = await FoodDBCache.findOne({
+            barcode: product.barcode,
+          }).lean();
+
+          if (cachedProduct) {
+            recentProducts.push({
+              barcode: product.barcode,
+              ...cachedProduct.data,
+            });
+          } else {
+            // Fall back to user's custom products
+            const customProduct = await customEan
+              .findOne({
+                userId,
+                barcode: product.barcode,
+              })
+              .lean();
+
+            if (customProduct) {
+              recentProducts.push({
+                barcode: product.barcode,
+                ...customProduct.data,
+              });
+            }
+          }
+
+          if (recentProducts.length === 20) {
+            break;
+          }
+        }
+
+        if (recentProducts.length === 20) {
+          break;
+        }
+      }
+
+      return res.status(200).json(recentProducts);
+    } catch (error) {
+      console.error("Recent products error:", error);
+
+      return res.status(500).json({
         message: "Server error",
       });
     }
