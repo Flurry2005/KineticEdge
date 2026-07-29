@@ -3,20 +3,12 @@ import { formatWeight } from "../../../utils/FormatWeight";
 import { useSessions } from "../../../Context/useSessions";
 import type { Session } from "../../../types/Session";
 import { useWorkouts } from "../../../Context/useWorkouts";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import IntensityPanel from "./Components/IntensityPanel";
 import DailyEnergyExpenditure from "./Components/DailyEnergyExpenditure";
-import BarcodeScanner from "../../../utils/BarcodeScanner";
+import { useAuth } from "../../../Context/useAuth";
 
 function DashboardPanel() {
+  const { user } = useAuth();
   const { sessions } = useSessions();
   const { workouts } = useWorkouts();
   const latestSession: Session | undefined = sessions?.reduce(
@@ -134,7 +126,7 @@ function DashboardPanel() {
               </p>
             </div>
           </article>
-          <DailyEnergyExpenditure />
+          {user?.withings.connected && <DailyEnergyExpenditure />}
         </section>
       </main>
     </div>

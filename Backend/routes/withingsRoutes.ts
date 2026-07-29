@@ -13,7 +13,7 @@ router.get(
 
     const clientId = process.env.WITHINGS_CLIENT_ID;
     let redirectUri = process.env.WITHINGS_REDIRECT_URI;
-    if (req.host.toString() === "localhost:3000") {
+    if (req.host.toString() === "192.168.1.201:3000") {
       redirectUri = redirectUri!.replace(
         "https://api.kineticedge.liamjorgensen.dev",
         "http://192.168.1.201:3000",
@@ -69,7 +69,7 @@ router.get(
     try {
       const clientId = process.env.WITHINGS_CLIENT_ID;
       let redirectUri = process.env.WITHINGS_REDIRECT_URI;
-      if (req.host.toString() === "localhost:3000") {
+      if (req.host.toString() === "192.168.1.201:3000") {
         redirectUri = redirectUri!.replace(
           "https://api.kineticedge.liamjorgensen.dev",
           "http://192.168.1.201:3000",

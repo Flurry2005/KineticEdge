@@ -7,6 +7,7 @@ import AddFoodModal from "./Components/AddFoodModal";
 import ManualFoodModal from "./Components/ManualFoodModal";
 import { useWithings } from "../../../Context/useWitings";
 import PastPanel from "./Components/PastPanel";
+import { useAuth } from "../../../Context/useAuth";
 export const Panel = {
   PAST: "PAST",
   TODAY: "UPCOMMING",
@@ -16,6 +17,7 @@ export const Panel = {
 export type ActivePanel = (typeof Panel)[keyof typeof Panel];
 
 function NutritionPanel() {
+  const { user } = useAuth();
   const { todaysActivity } = useWithings();
   const [activePanel, setActivePanel] = useState<ActivePanel>(Panel.TODAY);
 
@@ -159,18 +161,20 @@ function NutritionPanel() {
               </p>
 
               <div className="flex flex-wrap gap-5 not-sm:grid not-sm:grid-cols-3">
-                <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
-                  <h2 className="text-[#ADAAAA] text-xs">EXPENDITURE</h2>
+                {user?.withings.connected && (
+                  <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
+                    <h2 className="text-[#ADAAAA] text-xs">EXPENDITURE</h2>
 
-                  <p className="text-[#F3FFCA] font-black text-sm">
-                    {todaysActivity === undefined
-                      ? "Loading..."
-                      : todaysActivity.status === 601
-                        ? "Wait..."
-                        : todaysActivity!.totalCalories!.toFixed(0) +
-                          " KCAL"}{" "}
-                  </p>
-                </article>
+                    <p className="text-[#F3FFCA] font-black text-sm">
+                      {todaysActivity === undefined
+                        ? "Loading..."
+                        : todaysActivity.status === 601
+                          ? "Wait..."
+                          : todaysActivity!.totalCalories!.toFixed(0) +
+                            " KCAL"}{" "}
+                    </p>
+                  </article>
+                )}
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
                   <h2 className="text-[#ADAAAA] text-xs">INTAKE</h2>
 
@@ -185,34 +189,37 @@ function NutritionPanel() {
                       : "Loading..."}{" "}
                   </p>
                 </article>
-                <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
-                  <h2 className="text-[#ADAAAA] text-xs">
-                    {todaysActivity === undefined
-                      ? "Loading..."
-                      : todaysActivity!.totalCalories! -
-                            (today?.products
-                              ?.reduce(
+                {user?.withings.connected && (
+                  <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
+                    <h2 className="text-[#ADAAAA] text-xs">
+                      {todaysActivity === undefined
+                        ? "Loading..."
+                        : todaysActivity!.totalCalories! -
+                              (today?.products
+                                ?.reduce(
+                                  (sum: number, item: any) =>
+                                    sum + item.calories,
+                                  0,
+                                )
+                                .toFixed(0) ?? 0) >
+                            0
+                          ? "DEFICIT"
+                          : "SURPLUS"}
+                    </h2>
+
+                    <p className="text-[#F3FFCA] font-black text-sm">
+                      {todaysActivity === undefined
+                        ? "Loading..."
+                        : Math.abs(
+                            todaysActivity!.totalCalories! -
+                              (today?.products?.reduce(
                                 (sum: number, item: any) => sum + item.calories,
                                 0,
-                              )
-                              .toFixed(0) ?? 0) >
-                          0
-                        ? "DEFICIT"
-                        : "SURPLUS"}
-                  </h2>
-
-                  <p className="text-[#F3FFCA] font-black text-sm">
-                    {todaysActivity === undefined
-                      ? "Loading..."
-                      : Math.abs(
-                          todaysActivity!.totalCalories! -
-                            (today?.products?.reduce(
-                              (sum: number, item: any) => sum + item.calories,
-                              0,
-                            ) ?? 0),
-                        ).toFixed(0) + " KCAL"}{" "}
-                  </p>
-                </article>
+                              ) ?? 0),
+                          ).toFixed(0) + " KCAL"}{" "}
+                    </p>
+                  </article>
+                )}
                 <article className="h-20 w-30 bg-[#131313] rounded-2xl flex flex-col p-4 justify-center">
                   <h2 className="text-[#ADAAAA] text-xs">CARBS</h2>
 

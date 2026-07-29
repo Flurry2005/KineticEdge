@@ -52,7 +52,7 @@ export function WithingsProvider({ children }: { children: React.ReactNode }) {
       },
     );
 
-    if (!response.ok) {
+    if (!response.ok && user?.withings.connected) {
       logout();
       return;
     }

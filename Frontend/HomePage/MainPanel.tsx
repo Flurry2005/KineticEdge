@@ -161,16 +161,18 @@ function MainPanel({ panel }: Props) {
                   <Apple />
                   Nutrition
                 </Link>
-                <Link
-                  to={"/measurements"}
-                  onClick={() => {
-                    setActivePanel(Panel.MEASUREMENTS);
-                  }}
-                  className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.MEASUREMENTS ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
-                >
-                  <BicepsFlexed />
-                  Measurements
-                </Link>
+                {user.withings.connected && (
+                  <Link
+                    to={"/measurements"}
+                    onClick={() => {
+                      setActivePanel(Panel.MEASUREMENTS);
+                    }}
+                    className={`w-full h-10 flex px-2 gap-2 items-center cursor-pointer ${activePanel === Panel.MEASUREMENTS ? "text-[#CCFF00] border-l-2 rounded bg-[#1A1A1A]" : "text-[#ADAAAA]"}`}
+                  >
+                    <BicepsFlexed />
+                    Measurements
+                  </Link>
+                )}
                 <Link
                   to={"/profile/" + user.username}
                   onClick={() => {
