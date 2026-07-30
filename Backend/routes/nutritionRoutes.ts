@@ -18,7 +18,7 @@ router.get(
   attachUserId,
   barcodeLimiter,
   async (req, res) => {
-    const barcode = req.query.barcode as string;
+    const barcode = String(req.query.barcode);
 
     const foodData = await FoodDBCache.findOne({ barcode: barcode });
 
