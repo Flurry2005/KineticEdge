@@ -18,21 +18,9 @@ router.get(
   attachUserId,
   barcodeLimiter,
   async (req, res) => {
-    const barcode = Number(req.query.barcode);
+    const barcode = req.query.barcode as string;
 
-    if (!Number.isSafeInteger(barcode)) {
-      return res.status(400).json({
-        message: "Invalid barcode",
-      });
-    }
-
-    let foodData = null;
-
-    if (!isNaN(Number(barcode))) {
-      foodData = await FoodDBCache.findOne({
-        barcode: Number(barcode),
-      });
-    }
+    const foodData = await FoodDBCache.findOne({ barcode: barcode });
 
     if (foodData) return res.status(200).json(foodData.data);
     else {
@@ -162,25 +150,16 @@ router.post(
       });
 
       //See if barcode exists in cache => if doesnt, barcode dont exist add as customEan for user
-      const isBarcode = /^\d+$/.test(String(barcode));
-
-      let existsInCache = false;
-
-      if (isBarcode) {
-        existsInCache = !!(await FoodDBCache.findOne({
-          barcode: Number(barcode),
-        }));
-      }
-
-      const existsInCustom = !!(await customEan.findOne({
-        userId,
-        barcode,
-      }));
-
-      if (!existsInCache && !existsInCustom) {
+      if (
+        !(await FoodDBCache.findOne({ barcode: barcode })) &&
+        !(await customEan.findOne({
+          userId: res.locals.jwt.userId,
+          barcode: barcode,
+        }))
+      ) {
         await customEan.insertOne({
-          userId,
-          barcode,
+          userId: res.locals.jwt.userId,
+          barcode: barcode,
           data: {
             status: "success",
             product: {
@@ -355,13 +334,9 @@ router.get(
           uniqueBarcodes.add(product.barcode);
 
           // Try FoodDBCache first
-          let cachedProduct = null;
-
-          if (/^\d+$/.test(String(product.barcode))) {
-            cachedProduct = await FoodDBCache.findOne({
-              barcode: Number(product.barcode),
-            }).lean();
-          }
+          let cachedProduct = await FoodDBCache.findOne({
+            barcode: product.barcode,
+          }).lean();
 
           if (cachedProduct) {
             recentProducts.push({

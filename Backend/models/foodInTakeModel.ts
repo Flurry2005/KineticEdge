@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema(
   {
     barcode: {
-      type: Number,
+      type: String,
       required: true,
     },
 

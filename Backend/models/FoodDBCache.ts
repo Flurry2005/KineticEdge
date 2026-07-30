@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export const foodDBCache = new mongoose.Schema(
   {
     barcode: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
     },
