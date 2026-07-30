@@ -162,16 +162,25 @@ router.post(
       });
 
       //See if barcode exists in cache => if doesnt, barcode dont exist add as customEan for user
-      if (
-        !(await FoodDBCache.findOne({ barcode: barcode })) &&
-        !(await customEan.findOne({
-          userId: res.locals.jwt.userId,
-          barcode: barcode,
-        }))
-      ) {
+      const isBarcode = /^\d+$/.test(String(barcode));
+
+      let existsInCache = false;
+
+      if (isBarcode) {
+        existsInCache = !!(await FoodDBCache.findOne({
+          barcode: Number(barcode),
+        }));
+      }
+
+      const existsInCustom = !!(await customEan.findOne({
+        userId,
+        barcode,
+      }));
+
+      if (!existsInCache && !existsInCustom) {
         await customEan.insertOne({
-          userId: res.locals.jwt.userId,
-          barcode: barcode,
+          userId,
+          barcode,
           data: {
             status: "success",
             product: {
@@ -346,9 +355,13 @@ router.get(
           uniqueBarcodes.add(product.barcode);
 
           // Try FoodDBCache first
-          let cachedProduct = await FoodDBCache.findOne({
-            barcode: product.barcode,
-          }).lean();
+          let cachedProduct = null;
+
+          if (/^\d+$/.test(String(product.barcode))) {
+            cachedProduct = await FoodDBCache.findOne({
+              barcode: Number(product.barcode),
+            }).lean();
+          }
 
           if (cachedProduct) {
             recentProducts.push({
