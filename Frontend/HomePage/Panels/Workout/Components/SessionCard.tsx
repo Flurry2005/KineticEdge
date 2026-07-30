@@ -19,260 +19,514 @@ interface Props {
 
 function SessionCard({ session, day, month, year, workout, tags }: Props) {
   const [showDetails, setShowDetails] = useState(false);
+
   const [sessionData, setSessionData] = useState<Session>(session);
+
   const { setSessions } = useSessions();
   const { logout } = useAuth();
 
   const updateSessionApi = async (s: Session) => {
     const res = await updateSession(s);
+
     if (!res.success) {
       logout();
     }
   };
+
+  const saveSession = (updatedSession: Session) => {
+    updateSessionApi(updatedSession);
+
+    setSessionData(updatedSession);
+
+    setSessions((prev: Session[] | undefined) => {
+      if (!prev) return prev;
+
+      return prev.map((sessionS) =>
+        sessionS._id === session._id ? updatedSession : sessionS,
+      );
+    });
+  };
+
   return (
-    <div className="bg-[#131313] p-5 rounded-2xl flex gap-5 flex-col">
-      <section className=" flex flex-col md:flex-row gap-5 items-center h-fit md:h-35 w-full">
-        <div className="flex flex-col text-white w-10 items-center">
-          <p className="text-3xl font-black">{day}</p>
-          <p className="text-xs text-[#ADAAAA]">{month.toUpperCase()}</p>
-          <p className="text-xs text-[#ADAAAA]">{year}</p>
-        </div>
-        <span className="md:h-20 w-50 md:w-1  border-b-2 md:border-b-0 md:border-r-2 border-[#484847]/10 md:min-w-1"></span>
-        <span
-          className={`w-fit h-fit rounded-3xl tracking-tighter font-semibold px-2 py-2 text-center flex justify-center items-center ${sessionData.completed ? "bg-[#F3FFCA]/10 text-[#F3FFCA]" : "bg-[#FF7441]/10 text-[#FF7441]"}`}
-        >
-          {session.completed ? "COMPLETED" : "NOT COMPLETED"}
-        </span>
-        <div>
-          <p className="text-4xl text-white font-black tracking-tighter">
-            {workout.workoutName ?? "Unknown workout"}
+    <div
+      className="
+      bg-[#111111]
+      border border-[#242424]
+      rounded-3xl
+      p-6
+      shadow-xl
+      hover:border-[#3a3a3a]
+      transition
+      "
+    >
+      {/* HEADER */}
+
+      <section
+        className="
+        flex
+        flex-col
+        xl:flex-row
+        gap-6
+        items-center
+        "
+      >
+        {/* DATE */}
+
+        <div className="flex flex-col items-center min-w-20">
+          <p
+            className="
+          text-5xl
+          font-black
+          text-white
+          tracking-tighter
+          "
+          >
+            {day}
           </p>
-          <p className="text-xs text-[#ADAAAA]">{workout.workoutDesc}</p>
+
+          <p
+            className="
+          text-xs
+          font-bold
+          text-[#8b8b8b]
+          "
+          >
+            {month.toUpperCase()}
+          </p>
+
+          <p
+            className="
+          text-xs
+          text-[#555]
+          "
+          >
+            {year}
+          </p>
         </div>
-        {/*Tags */}
-        <div className="flex flex-col justify-center items-end flex-1">
-          {tags.map((tag: string) => (
-            <span
-              key={tag}
-              className="px-3 py-1 text-xs bg-[#1A1A1A] text-white rounded-3xl w-fit"
-            >
-              {tag}
-            </span>
-          ))}
+
+        <div
+          className="
+          hidden
+          xl:block
+          h-20
+          w-px
+          bg-[#292929]
+          "
+        />
+
+        {/* INFO */}
+
+        <div className="flex-1 flex flex-col gap-2">
+          <span
+            className={`
+            w-fit
+            px-4
+            py-2
+            rounded-full
+            text-xs
+            font-black
+            ${
+              sessionData.completed
+                ? "bg-lime-300/10 text-lime-300"
+                : "bg-orange-400/10 text-orange-400"
+            }
+            `}
+          >
+            {sessionData.completed ? "COMPLETED" : "NOT COMPLETED"}
+          </span>
+
+          <h2
+            className="
+            text-4xl
+            text-white
+            font-black
+            tracking-tighter
+            "
+          >
+            {workout.workoutName ?? "Unknown workout"}
+          </h2>
+
+          <p
+            className="
+            text-sm
+            text-[#8b8b8b]
+            "
+          >
+            {workout.workoutDesc}
+          </p>
+
+          <div
+            className="
+          flex
+          flex-wrap
+          gap-2
+          mt-2
+          "
+          >
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="
+                  px-3
+                  py-1
+                  rounded-full
+                  text-xs
+                  bg-[#1c1c1c]
+                  border border-[#2c2c2c]
+                  text-gray-300
+                  "
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
         </div>
-        {/* Expand */}
+
+        {/* EXPAND BUTTON */}
+
         <button
-          className="bg-[#20201F] w-12 h-12 rounded-full flex justify-center items-center cursor-pointer "
-          onClick={() => setShowDetails((prev) => !prev)}
+          className="
+          bg-[#1d1d1d]
+          hover:bg-[#292929]
+          w-12
+          h-12
+          rounded-full
+          flex
+          justify-center
+          items-center
+          transition
+          cursor-pointer
+          "
+          onClick={() => setShowDetails(!showDetails)}
         >
           <img
             src="RightArrowIcon.png"
             alt=""
-            className={`rotate-90 h-5 w-auto transition duration-300 ${
-              showDetails && "-rotate-90!"
-            }`}
+            className={`
+            w-3
+            transition-transform
+            duration-300
+            ${showDetails ? "-rotate-90" : "rotate-90"}
+            `}
           />
         </button>
       </section>
       {showDetails && (
-        <div className="flex flex-col gap-5">
-          <section className="flex gap-10 flex-wrap justify-center">
-            {sessionData.exercices.map((exercice, index: number) => {
-              return (
-                <article className="h-fit" key={index}>
-                  <p className="text-white tracking-tighter font-black border-b-2 w-fit mb-2">
-                    {exercice.name.toUpperCase()}
-                  </p>
-                  <div className="flex gap-2 flex-col">
-                    <li className="list-none text-white flex flex-col gap-5">
-                      {exercice.sets?.map((set: Set, index: number) => {
-                        return (
-                          <div className="flex gap-2 items-start">
-                            <p className="px-2 h-fit py-1 rounded-4xl bg-amber-200/10 text-amber-200 flex justify-center items-center">
-                              {"Set " + (index + 1)}
-                            </p>
-                            {/* Reps */}
-                            <div className="flex flex-col items-center justify-start">
-                              <label htmlFor="">Reps</label>
-                              <InputField
-                                key={index}
-                                placeholder="0"
-                                value={set.reps}
-                                additionalClasses="w-15!  bg-[#1A1A1A] rounded-2xl! border-0 h-7 w-full placeholder:text-[#ADAAAA]/60 placeholder:text-xs text-white text-xs"
-                                onChange={(e) => {
-                                  const value = Number(e.target.value);
-                                  if (isNaN(value)) return;
-                                  const updatedSession = {
-                                    ...sessionData,
-                                    exercices: sessionData.exercices.map(
-                                      (ex) =>
-                                        ex === exercice
+        <div
+          className="
+          mt-8
+          border-t
+          border-[#252525]
+          pt-8
+          "
+        >
+          <div
+            className="
+            grid
+            grid-cols-1
+            lg:grid-cols-2
+            gap-6
+            "
+          >
+            {sessionData.exercices.map((exercise, exerciseIndex) => (
+              <article
+                key={exerciseIndex}
+                className="
+                  bg-[#161616]
+                  border border-[#252525]
+                  rounded-3xl
+                  p-5
+                  "
+              >
+                <h3
+                  className="
+                    text-white
+                    font-black
+                    text-xl
+                    tracking-tight
+                    mb-5
+                    "
+                >
+                  {exercise.name.toUpperCase()}
+                </h3>
+
+                <div className="flex flex-col gap-3">
+                  {exercise.sets?.map((set: Set, index: number) => (
+                    <div
+                      key={index}
+                      className="
+                        flex
+                        items-center
+                        gap-3
+                        bg-[#101010]
+                        rounded-2xl
+                        p-3
+                        "
+                    >
+                      {/* SET NUMBER */}
+
+                      <span
+                        className="
+                          bg-lime-300/10
+                          text-lime-300
+                          px-3
+                          py-1
+                          rounded-full
+                          text-xs
+                          font-black
+                          "
+                      >
+                        SET {index + 1}
+                      </span>
+
+                      {/* REPS */}
+
+                      <div className="flex-1">
+                        <p
+                          className="
+                            text-[10px]
+                            text-gray-500
+                            "
+                        >
+                          REPS
+                        </p>
+
+                        <InputField
+                          placeholder="0"
+                          value={set.reps}
+                          additionalClasses="
+                            bg-[#1b1b1b]
+                            border-none
+                            rounded-xl
+                            h-8
+                            text-white
+                            text-xs
+                            "
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+
+                            if (isNaN(value)) return;
+
+                            const updatedSession = {
+                              ...sessionData,
+
+                              exercices: sessionData.exercices.map((ex) =>
+                                ex === exercise
+                                  ? {
+                                      ...ex,
+
+                                      sets: ex.sets?.map((s, i) =>
+                                        i === index
                                           ? {
-                                              ...ex,
-                                              sets: ex.sets?.map((s, i) =>
-                                                i === index
-                                                  ? { ...s, reps: value }
-                                                  : s,
-                                              ),
+                                              ...s,
+                                              reps: value,
                                             }
-                                          : ex,
-                                    ),
-                                  };
-                                  updateSessionApi(updatedSession);
-                                  setSessions((prev: Session[] | undefined) => {
-                                    if (!prev) return prev;
-                                    return prev.map((sessionS: Session) =>
-                                      sessionS._id === session._id
-                                        ? updatedSession
-                                        : sessionS,
-                                    );
-                                  });
-                                  setSessionData(updatedSession);
-                                }}
-                              />
-                            </div>
-                            {/* Weight */}
-                            <div className="flex flex-col items-center">
-                              <label htmlFor="">Weight</label>
-                              <InputField
-                                key={index}
-                                placeholder="0"
-                                value={set.weight}
-                                additionalClasses="w-15! bg-[#1A1A1A] rounded-2xl! border-0 h-7 w-full placeholder:text-[#ADAAAA]/60 placeholder:text-xs text-white text-xs"
-                                onChange={(e) => {
-                                  const value = Number(e.target.value);
-                                  if (isNaN(value)) return;
-                                  const updatedSession = {
-                                    ...sessionData,
-                                    exercices: sessionData.exercices.map(
-                                      (ex) =>
-                                        ex === exercice
+                                          : s,
+                                      ),
+                                    }
+                                  : ex,
+                              ),
+                            };
+
+                            saveSession(updatedSession);
+                          }}
+                        />
+                      </div>
+
+                      {/* WEIGHT */}
+
+                      <div className="flex-1">
+                        <p
+                          className="
+                            text-[10px]
+                            text-gray-500
+                            "
+                        >
+                          KG
+                        </p>
+
+                        <InputField
+                          placeholder="0"
+                          value={set.weight}
+                          additionalClasses="
+                            bg-[#1b1b1b]
+                            border-none
+                            rounded-xl
+                            h-8
+                            text-white
+                            text-xs
+                            "
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+
+                            if (isNaN(value)) return;
+
+                            const updatedSession = {
+                              ...sessionData,
+
+                              exercices: sessionData.exercices.map((ex) =>
+                                ex === exercise
+                                  ? {
+                                      ...ex,
+
+                                      sets: ex.sets?.map((s, i) =>
+                                        i === index
                                           ? {
-                                              ...ex,
-                                              sets: ex.sets?.map((s, i) =>
-                                                i === index
-                                                  ? { ...s, weight: value }
-                                                  : s,
-                                              ),
+                                              ...s,
+                                              weight: value,
                                             }
-                                          : ex,
-                                    ),
-                                  };
-                                  updateSessionApi(updatedSession);
-                                  setSessions((prev: Session[] | undefined) => {
-                                    if (!prev) return prev;
-                                    return prev.map((sessionS: Session) =>
-                                      sessionS._id === session._id
-                                        ? updatedSession
-                                        : sessionS,
-                                    );
-                                  });
-                                  setSessionData(updatedSession);
-                                }}
-                              />
-                            </div>
-                            <button
-                              className="bg-red-400 px-2 py-1 rounded-4xl text-xs h-5 flex justify-center items-center text-white cursor-pointer"
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    "Are you sure you want to remove the set?",
-                                  )
-                                ) {
-                                  const updatedSession = {
-                                    ...sessionData,
-                                    exercices: sessionData.exercices.map(
-                                      (ex) =>
-                                        ex === exercice
-                                          ? {
-                                              ...ex,
-                                              sets: ex.sets?.filter(
-                                                (_, i) => i !== index,
-                                              ),
-                                            }
-                                          : ex,
-                                    ),
-                                  };
-                                  updateSessionApi(updatedSession);
-                                  setSessions((prev: Session[] | undefined) => {
-                                    if (!prev) return prev;
-                                    return prev.map((sessionS: Session) =>
-                                      sessionS._id === session._id
-                                        ? updatedSession
-                                        : sessionS,
-                                    );
-                                  });
-                                  setSessionData(updatedSession);
-                                }
-                              }}
-                            >
-                              -
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </li>
-                    <div className="flex gap-2">
+                                          : s,
+                                      ),
+                                    }
+                                  : ex,
+                              ),
+                            };
+
+                            saveSession(updatedSession);
+                          }}
+                        />
+                      </div>
+
+                      {/* REMOVE SET */}
+
                       <button
-                        className="bg-lime-400 px-2 py-5 mt-5 rounded-4xl text-xs h-5 w-full flex justify-center items-center text-[#4A5E00] cursor-pointer"
+                        className="
+                          bg-red-500/10
+                          text-red-400
+                          hover:bg-red-500/20
+                          rounded-xl
+                          w-8
+                          h-8
+                          transition
+                          "
                         onClick={() => {
-                          const defaultSet: Set = {
-                            reps: 0,
-                            weight: 0,
-                          };
+                          if (!window.confirm("Remove this set?")) return;
+
                           const updatedSession = {
                             ...sessionData,
+
                             exercices: sessionData.exercices.map((ex) =>
-                              ex === exercice
+                              ex === exercise
                                 ? {
                                     ...ex,
-                                    sets: [...(ex.sets ?? []), defaultSet],
+
+                                    sets: ex.sets?.filter(
+                                      (_, i) => i !== index,
+                                    ),
                                   }
                                 : ex,
                             ),
                           };
-                          updateSessionApi(updatedSession);
-                          setSessions((prev: Session[] | undefined) => {
-                            if (!prev) return prev;
-                            return prev.map((sessionS: Session) =>
-                              sessionS._id === session._id
-                                ? updatedSession
-                                : sessionS,
-                            );
-                          });
-                          setSessionData(updatedSession);
+
+                          saveSession(updatedSession);
                         }}
                       >
-                        + SET
+                        -
                       </button>
                     </div>
-                  </div>
-                </article>
-              );
-            })}
-          </section>
-          <GlowingButton
-            onClick={() => {
-              const updatedSession = {
-                ...sessionData,
-                completed: !sessionData.completed,
-              };
-              updateSessionApi(updatedSession);
+                  ))}
+                </div>
 
-              setSessionData(updatedSession);
+                {/* ADD SET */}
 
-              setSessions((prev: Session[] | undefined) => {
-                if (!prev) return prev;
-                return prev.map((sessionS: Session) =>
-                  sessionS._id === session._id ? updatedSession : sessionS,
-                );
-              });
-            }}
-            outline={false}
-            additionalClasses={`bg-none !bg-lime-400 rounded-2xl px-2 py-2 tracking-tighter font-black cursor-pointer text-[#4A5E00]! w-40! text-xs! ${!sessionData.completed ? "" : "!bg-red-400 text-red-500! hover:shadow-[0_0_15px_rgba(255,0,0,0.7),0_0_30px_rgba(255,100,100,0.6)]!"}`}
+                <button
+                  className="
+                    mt-5
+                    w-full
+                    bg-lime-300/10
+                    text-lime-300
+                    border border-lime-300/20
+                    rounded-2xl
+                    py-3
+                    font-black
+                    text-xs
+                    hover:bg-lime-300/20
+                    transition
+                    cursor-pointer
+                    "
+                  onClick={() => {
+                    const defaultSet: Set = {
+                      reps: 0,
+
+                      weight: 0,
+                    };
+
+                    const updatedSession = {
+                      ...sessionData,
+
+                      exercices: sessionData.exercices.map((ex) =>
+                        ex === exercise
+                          ? {
+                              ...ex,
+
+                              sets: [...(ex.sets ?? []), defaultSet],
+                            }
+                          : ex,
+                      ),
+                    };
+
+                    saveSession(updatedSession);
+                  }}
+                >
+                  + ADD SET
+                </button>
+              </article>
+            ))}
+          </div>
+
+          {/* COMPLETE BUTTON */}
+
+          <div
+            className="
+            flex
+            justify-center
+            mt-8
+            "
           >
-            {!sessionData.completed ? "COMPLETE WORKOUT" : "UNCOMPLETE WORKOUT"}
-          </GlowingButton>
+            <GlowingButton
+              outline={false}
+              onClick={() => {
+                const updatedSession = {
+                  ...sessionData,
+
+                  completed: !sessionData.completed,
+                };
+
+                saveSession(updatedSession);
+              }}
+              additionalClasses={`
+  bg-none
+  !bg-lime-400
+  rounded-2xl
+  px-5
+  py-3
+  tracking-tight
+  font-black
+  cursor-pointer
+  !text-[#4A5E00]
+  w-52
+  text-xs
+  transition-all
+  duration-300
+  hover:scale-105
+  hover:shadow-[0_0_20px_rgba(163,230,53,0.45),0_0_40px_rgba(163,230,53,0.25)]
+
+  ${
+    sessionData.completed
+      ? `
+        !bg-red-400
+        !text-red-950
+        hover:shadow-[0_0_20px_rgba(248,113,113,0.6),0_0_40px_rgba(248,113,113,0.3)]
+      `
+      : ""
+  }
+`}
+            >
+              {sessionData.completed
+                ? "UNCOMPLETE WORKOUT"
+                : "COMPLETE WORKOUT"}
+            </GlowingButton>
+          </div>
         </div>
       )}
     </div>
