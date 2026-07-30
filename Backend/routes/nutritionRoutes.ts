@@ -301,6 +301,7 @@ router.get(
     }
   },
 );
+
 router.get(
   "/get-recent-products",
   jwtMiddleware.jwtTokenIsValid,
@@ -322,7 +323,7 @@ router.get(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
 
-      const recentProducts: any[] = [];
+      const recentProducts = [];
 
       for (const day of sortedDays) {
         for (let i = day.products.length - 1; i >= 0; i--) {
@@ -330,14 +331,11 @@ router.get(
 
           const barcode = String(product.barcode);
 
-          // Skip duplicates
-          if (uniqueBarcodes.has(barcode)) {
-            continue;
-          }
+          if (uniqueBarcodes.has(barcode)) continue;
 
           uniqueBarcodes.add(barcode);
 
-          // Check global cache first
+          // Try FoodDBCache first
           const cachedProduct = await FoodDBCache.findOne({
             barcode,
           }).lean();
@@ -348,7 +346,7 @@ router.get(
               ...cachedProduct.data,
             });
           } else {
-            // Check user's custom products
+            // Fall back to user's custom products
             const customProduct = await customEan
               .findOne({
                 userId,
@@ -364,13 +362,12 @@ router.get(
             }
           }
 
-          // Maximum 20 recent products
-          if (recentProducts.length >= 20) {
+          if (recentProducts.length === 20) {
             break;
           }
         }
 
-        if (recentProducts.length >= 20) {
+        if (recentProducts.length === 20) {
           break;
         }
       }
