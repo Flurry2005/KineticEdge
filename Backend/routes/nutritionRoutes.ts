@@ -301,7 +301,6 @@ router.get(
     }
   },
 );
-
 router.get(
   "/get-recent-products",
   jwtMiddleware.jwtTokenIsValid,
@@ -317,55 +316,61 @@ router.get(
         return res.status(200).json([]);
       }
 
-      const uniqueBarcodes = new Set<number>();
+      const uniqueBarcodes = new Set<string>();
 
       const sortedDays = [...foodIntake.days].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
 
-      const recentProducts = [];
+      const recentProducts: any[] = [];
 
       for (const day of sortedDays) {
         for (let i = day.products.length - 1; i >= 0; i--) {
           const product = day.products[i];
 
-          if (uniqueBarcodes.has(product.barcode)) continue;
+          const barcode = String(product.barcode);
 
-          uniqueBarcodes.add(product.barcode);
+          // Skip duplicates
+          if (uniqueBarcodes.has(barcode)) {
+            continue;
+          }
 
-          // Try FoodDBCache first
-          let cachedProduct = await FoodDBCache.findOne({
-            barcode: product.barcode,
+          uniqueBarcodes.add(barcode);
+
+          // Check global cache first
+          const cachedProduct = await FoodDBCache.findOne({
+            barcode,
           }).lean();
 
           if (cachedProduct) {
             recentProducts.push({
-              barcode: product.barcode,
+              barcode,
               ...cachedProduct.data,
             });
           } else {
-            // Fall back to user's custom products
+            // Check user's custom products
             const customProduct = await customEan
               .findOne({
                 userId,
-                barcode: product.barcode,
+                barcode,
               })
               .lean();
 
             if (customProduct) {
               recentProducts.push({
-                barcode: product.barcode,
+                barcode,
                 ...customProduct.data,
               });
             }
           }
 
-          if (recentProducts.length === 20) {
+          // Maximum 20 recent products
+          if (recentProducts.length >= 20) {
             break;
           }
         }
 
-        if (recentProducts.length === 20) {
+        if (recentProducts.length >= 20) {
           break;
         }
       }
