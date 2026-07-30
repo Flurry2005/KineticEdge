@@ -53,7 +53,7 @@ const CustomEanSchema = new mongoose.Schema(
       required: true,
     },
     barcode: {
-      type: Number,
+      type: Number || String,
       required: true,
     },
     data: {
