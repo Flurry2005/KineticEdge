@@ -26,7 +26,13 @@ router.get(
       });
     }
 
-    const foodData = await FoodDBCache.findOne({ barcode: barcode });
+    let foodData = null;
+
+    if (!isNaN(Number(barcode))) {
+      foodData = await FoodDBCache.findOne({
+        barcode: Number(barcode),
+      });
+    }
 
     if (foodData) return res.status(200).json(foodData.data);
     else {
