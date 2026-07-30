@@ -16,15 +16,15 @@ function Exercise({
 }: Props) {
   const [search, setSearch] = useState<string>("");
   return (
-    <article className="bg-[#131313] text-[#ADAAAA] px-5 py-5 h-fit rounded-2xl flex flex-col gap-5 ">
+    <article className="bg-[#131313] text-[#ADAAAA] px-5 py-5 h-full rounded-2xl flex flex-col">
       <InputField
         placeholder="Search for exercice..."
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        additionalClasses="w-fit! bg-[#1A1A1A] rounded! border-0 h-10 w-full placeholder:text-[#ADAAAA]/60 placeholder:text-xs text-white text-xs"
+        additionalClasses="max-w-full! !w-fit bg-[#1A1A1A] rounded! border-0 h-10 mb-5 w-full placeholder:text-[#ADAAAA]/60 placeholder:text-xs text-white text-xs"
       ></InputField>
-      <li className="list-none flex gap-5 flex-wrap">
+      <li className="list-none flex gap-5 flex-wrap overflow-y-scroll h-full">
         {exercices
           .filter((exercice: Exercice) =>
             exercice.name.toLowerCase().includes(search.toLowerCase()),

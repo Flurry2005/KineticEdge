@@ -245,6 +245,7 @@ function SessionCard({ session, day, month, year, workout, tags }: Props) {
                     text-xl
                     tracking-tight
                     mb-5
+                    w-fit
                     "
                 >
                   {exercise.name.toUpperCase()}
@@ -274,6 +275,7 @@ function SessionCard({ session, day, month, year, workout, tags }: Props) {
                           rounded-full
                           text-xs
                           font-black
+                          text-center
                           "
                       >
                         SET {index + 1}
@@ -281,7 +283,7 @@ function SessionCard({ session, day, month, year, workout, tags }: Props) {
 
                       {/* REPS */}
 
-                      <div className="flex-1">
+                      <div className="flex-1 w-full">
                         <p
                           className="
                             text-[10px]
@@ -301,6 +303,7 @@ function SessionCard({ session, day, month, year, workout, tags }: Props) {
                             h-8
                             text-white
                             text-xs
+                            w-full
                             "
                           onChange={(e) => {
                             const value = Number(e.target.value);
@@ -335,7 +338,7 @@ function SessionCard({ session, day, month, year, workout, tags }: Props) {
 
                       {/* WEIGHT */}
 
-                      <div className="flex-1">
+                      <div className="flex-1 w-full">
                         <p
                           className="
                             text-[10px]
@@ -355,6 +358,7 @@ function SessionCard({ session, day, month, year, workout, tags }: Props) {
                             h-8
                             text-white
                             text-xs
+                            w-full
                             "
                           onChange={(e) => {
                             const value = Number(e.target.value);
@@ -504,7 +508,7 @@ function SessionCard({ session, day, month, year, workout, tags }: Props) {
   font-black
   cursor-pointer
   !text-[#4A5E00]
-  w-52
+  w-fit
   text-xs
   transition-all
   duration-300

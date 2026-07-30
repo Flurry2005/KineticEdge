@@ -65,7 +65,7 @@ function PastSessions({ sessions, workouts, updateWorkouts }: Props) {
       >
         <img src="PlusIcon.png" alt="" />
       </GlowingButton>
-      <article className="w-80 h-100 rounded-2xl bg-[#131313] overflow-hidden relative">
+      <article className="w-80 not-2xl:hidden h-100 rounded-2xl bg-[#131313] overflow-hidden relative">
         <span className="absolute top-3 left-3 bg-[#FF7441] rounded-2xl px-2 py-1 text-xs tracking-tighter font-black text-[#410F00]">
           {latestSession ? "PREVIOUS SESSION" : "NO PREVIOUS SESSION"}
         </span>
